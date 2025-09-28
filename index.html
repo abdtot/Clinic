@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2E7D32">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>تسجيل الدخول - نظام إدارة العيادة</title>
+    <style>
+        :root {
+            --primary-color: #2E7D32;
+            --primary-dark: #1B5E20;
+            --primary-light: #4CAF50;
+            --secondary-color: #FF9800;
+            --text-color: #333;
+            --text-light: #666;
+            --background-color: #f5f5f5;
+            --white: #ffffff;
+            --error-color: #f44336;
+            --success-color: #4CAF50;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-header {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 25px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .login-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .login-header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .clinic-logo {
+            width: 80px;
+            height: 80px;
+            background-color: var(--white);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .login-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 1.2rem;
+        }
+
+        .input-with-icon input {
+            padding-right: 45px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: #f9f9f9;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: var(--primary-color);
+            background-color: var(--white);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
+        }
+
+        .password-toggle {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+        }
+
+        .remember-me input {
+            margin-left: 8px;
+        }
+
+        .forgot-password {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .forgot-password:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: var(--text-light);
+        }
+
+        .login-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: var(--error-color);
+            padding: 12px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+            font-weight: 500;
+            border: 1px solid rgba(244, 67, 54, 0.2);
+        }
+
+        .success-message {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success-color);
+            padding: 12px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+            font-weight: 500;
+            border: 1px solid rgba(76, 175, 80, 0.2);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .loading-spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--white);
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .offline-indicator {
+            background-color: #ff9800;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .offline-indicator i {
+            margin-left: 5px;
+        }
+
+        /* تصميم متجاوب */
+        @media (max-width: 480px) {
+            .login-container {
+                max-width: 100%;
+            }
+            
+            .login-body {
+                padding: 20px;
+            }
+            
+            .login-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .remember-forgot {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .forgot-password {
+                margin-top: 10px;
+            }
+        }
+
+        /* تأثيرات خاصة */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(46, 125, 50, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="clinic-logo">
+                <i class="fas fa-stethoscope"></i>
+            </div>
+            <h1>نظام إدارة العيادة</h1>
+            <p>تسجيل الدخول إلى لوحة التحكم</p>
+        </div>
+        
+        <div class="login-body">
+            <div id="offlineIndicator" class="offline-indicator" style="display: none;">
+                <i class="fas fa-wifi"></i> وضع عدم الاتصال
+            </div>
+            
+            <div id="errorMessage" class="error-message"></div>
+            <div id="successMessage" class="success-message"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">اسم المستخدم</label>
+                    <div class="input-with-icon">
+                        <input type="text" id="username" name="username" placeholder="أدخل اسم المستخدم" required>
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">كلمة المرور</label>
+                    <div class="input-with-icon">
+                        <input type="password" id="password" name="password" placeholder="أدخل كلمة المرور" required>
+                        <i class="fas fa-lock"></i>
+                        <button type="button" class="password-toggle" id="passwordToggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="remember-forgot">
+                    <div class="remember-me">
+                        <input type="checkbox" id="rememberMe" name="rememberMe">
+                        <label for="rememberMe">تذكرني</label>
+                    </div>
+                    <a href="#" class="forgot-password">نسيت كلمة المرور؟</a>
+                </div>
+                
+                <div class="loading" id="loadingIndicator">
+                    <div class="loading-spinner"></div>
+                    <p>جاري تسجيل الدخول...</p>
+                </div>
+                
+                <button type="submit" class="btn btn-primary pulse" id="loginButton">
+                    تسجيل الدخول
+                </button>
+            </form>
+            
+            <div class="login-footer">
+                <p>التطبيق يعمل بدون اتصال بالإنترنت &copy; 2023</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Font Awesome للرموز -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    
+    <!-- ملف قاعدة البيانات -->
+    <script src="db.js"></script>
+    
+    <script>
+        // تهيئة التطبيق
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const passwordToggle = document.getElementById('passwordToggle');
+            const loginButton = document.getElementById('loginButton');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            const offlineIndicator = document.getElementById('offlineIndicator');
+            
+            let clinicDB = null;
+            
+            // التحقق من حالة الاتصال بالإنترنت
+            function updateOnlineStatus() {
+                if (navigator.onLine) {
+                    offlineIndicator.style.display = 'none';
+                } else {
+                    offlineIndicator.style.display = 'inline-flex';
+                }
+            }
+            
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            updateOnlineStatus(); // التحقق عند التحميل
+            
+            // تبديل عرض كلمة المرور
+            passwordToggle.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                const icon = this.querySelector('i');
+                icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+            });
+            
+            // تهيئة قاعدة البيانات
+            async function initializeDatabase() {
+                try {
+                    clinicDB = new ClinicDatabase();
+                    await clinicDB.init();
+                    console.log('تم تهيئة قاعدة البيانات بنجاح');
+                    
+                    // التحقق من وجود بيانات تسجيل دخول محفوظة
+                    const savedUsername = localStorage.getItem('savedUsername');
+                    const savedPassword = localStorage.getItem('savedPassword');
+                    
+                    if (savedUsername && savedPassword) {
+                        usernameInput.value = savedUsername;
+                        passwordInput.value = savedPassword;
+                        document.getElementById('rememberMe').checked = true;
+                    }
+                } catch (error) {
+                    console.error('فشل في تهيئة قاعدة البيانات:', error);
+                    showError('فشل في تهيئة النظام. يرجى تحديث الصفحة.');
+                }
+            }
+            
+            // عرض رسالة الخطأ
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+            }
+            
+            // عرض رسالة النجاح
+            function showSuccess(message) {
+                successMessage.textContent = message;
+                successMessage.style.display = 'block';
+                errorMessage.style.display = 'none';
+            }
+            
+            // إخفاء جميع الرسائل
+            function hideMessages() {
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
+            }
+            
+            // معالجة تسجيل الدخول
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value;
+                const rememberMe = document.getElementById('rememberMe').checked;
+                
+                if (!username || !password) {
+                    showError('يرجى ملء جميع الحقول المطلوبة');
+                    return;
+                }
+                
+                // عرض مؤشر التحميل
+                loadingIndicator.style.display = 'block';
+                loginButton.disabled = true;
+                hideMessages();
+                
+                try {
+                    // محاولة تسجيل الدخول
+                    const result = await clinicDB.login(username, password, {
+                        userAgent: navigator.userAgent,
+                        platform: navigator.platform
+                    });
+                    
+                    if (result && result.user) {
+                        showSuccess('تم تسجيل الدخول بنجاح!');
+                        
+                        // حفظ بيانات تسجيل الدخول إذا طلب المستخدم ذلك
+                        if (rememberMe) {
+                            localStorage.setItem('savedUsername', username);
+                            localStorage.setItem('savedPassword', password);
+                        } else {
+                            localStorage.removeItem('savedUsername');
+                            localStorage.removeItem('savedPassword');
+                        }
+                        
+                        // حفظ التوكن في التخزين المحلي
+                        localStorage.setItem('authToken', result.token);
+                        localStorage.setItem('userData', JSON.stringify(result.user));
+                        
+                        // الانتقال إلى الصفحة الرئيسية بعد تأخير بسيط
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 1500);
+                    } else {
+                        showError('فشل في تسجيل الدخول. يرجى التحقق من البيانات المدخلة.');
+                    }
+                } catch (error) {
+                    console.error('خطأ في تسجيل الدخول:', error);
+                    showError(error.message || 'حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.');
+                } finally {
+                    // إخفاء مؤشر التحميل
+                    loadingIndicator.style.display = 'none';
+                    loginButton.disabled = false;
+                }
+            });
+            
+            // تهيئة التطبيق
+            initializeDatabase();
+            
+            // إضافة تأثيرات تفاعلية للحقول
+            const inputs = document.querySelectorAll('input[type="text"], input[type="password"]');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('focused');
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('focused');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
