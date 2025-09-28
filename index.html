@@ -1,1 +1,311 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - نظام إدارة المحلات التجارية</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .login-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            max-width: 90%;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .login-header {
+            margin-bottom: 30px;
+        }
+        
+        .login-header h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .login-header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: #4a90e2;
+            outline: none;
+        }
+        
+        .btn-login {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 20px;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-login:hover {
+            background-color: #357abD;
+        }
+        
+        .btn-login:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4a90e2;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-message {
+            color: #27ae60;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .footer-links {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .footer-links a {
+            color: #4a90e2;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>تسجيل الدخول</h1>
+            <p>يرجى إدخال بيانات الدخول للوصول إلى النظام</p>
+        </div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">اسم المستخدم</label>
+                <input type="text" id="username" name="username" required autocomplete="username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">كلمة المرور</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+            </div>
+            
+            <button type="submit" class="btn-login" id="loginButton">تسجيل الدخول</button>
+            
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+        </form>
+        
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>جاري التحقق من البيانات...</p>
+        </div>
+        
+        <div class="footer-links">
+            <a href="#" id="initDB">تهيئة قاعدة البيانات</a>
+        </div>
+    </div>
 
+    <script type="module">
+        // استيراد قاعدة البيانات من db.js
+        import storeDB from './db.js';
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            const loginForm = document.getElementById('loginForm');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            const loading = document.getElementById('loading');
+            const loginButton = document.getElementById('loginButton');
+            const initDBLink = document.getElementById('initDB');
+            
+            // تهيئة قاعدة البيانات عند النقر على الرابط
+            initDBLink.addEventListener('click', async function(e) {
+                e.preventDefault();
+                loading.style.display = 'block';
+                loginButton.disabled = true;
+                
+                try {
+                    await storeDB.open();
+                    await storeDB.seedInitialData();
+                    
+                    successMessage.textContent = 'تم تهيئة قاعدة البيانات بنجاح! يمكنك تسجيل الدخول الآن.';
+                    successMessage.style.display = 'block';
+                    errorMessage.style.display = 'none';
+                    
+                    // تعبئة تلقائية لبيانات الاختبار
+                    document.getElementById('username').value = 'admin';
+                    document.getElementById('password').value = 'admin123';
+                } catch (error) {
+                    errorMessage.textContent = 'حدث خطأ أثناء تهيئة قاعدة البيانات: ' + error.message;
+                    errorMessage.style.display = 'block';
+                    successMessage.style.display = 'none';
+                } finally {
+                    loading.style.display = 'none';
+                    loginButton.disabled = false;
+                }
+            });
+            
+            // معالجة تسجيل الدخول
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                // التحقق من الحقول الفارغة
+                if (!username || !password) {
+                    errorMessage.textContent = 'يرجى ملء جميع الحقول';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+                
+                loading.style.display = 'block';
+                loginButton.disabled = true;
+                
+                try {
+                    // التأكد من أن قاعدة البيانات مفتوحة
+                    if (!storeDB.db) {
+                        await storeDB.open();
+                    }
+                    
+                    // البحث عن المستخدم في قاعدة البيانات
+                    let user;
+                    try {
+                        user = await storeDB.getOneByIndex('users', 'username', username);
+                    } catch (error) {
+                        // إذا لم يكن جدول المستخدمين موجوداً بعد، نقوم بتهيئة البيانات
+                        if (error.name === 'NotFoundError' || error.message.includes('not found')) {
+                            await storeDB.seedInitialData();
+                            user = await storeDB.getOneByIndex('users', 'username', username);
+                        } else {
+                            throw error;
+                        }
+                    }
+                    
+                    // التحقق من وجود المستخدم وصحة كلمة المرور
+                    if (user && user.password === password) {
+                        successMessage.textContent = 'تم تسجيل الدخول بنجاح! جاري التوجيه...';
+                        successMessage.style.display = 'block';
+                        errorMessage.style.display = 'none';
+                        
+                        // حفظ حالة تسجيل الدخول
+                        localStorage.setItem('isLoggedIn', 'true');
+                        localStorage.setItem('user', JSON.stringify({
+                            id: user.id,
+                            username: user.username,
+                            fullName: user.fullName,
+                            role: user.role
+                        }));
+                        
+                        // توجيه إلى الصفحة الرئيسية بعد تسجيل الدخول
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 1500);
+                    } else {
+                        errorMessage.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة';
+                        errorMessage.style.display = 'block';
+                        successMessage.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('خطأ في تسجيل الدخول:', error);
+                    errorMessage.textContent = 'حدث خطأ أثناء تسجيل الدخول: ' + error.message;
+                    errorMessage.style.display = 'block';
+                    successMessage.style.display = 'none';
+                } finally {
+                    loading.style.display = 'none';
+                    loginButton.disabled = false;
+                }
+            });
+            
+            // محاولة فتح قاعدة البيانات تلقائياً عند تحميل الصفحة
+            try {
+                await storeDB.open();
+                successMessage.textContent = 'تم الاتصال بقاعدة البيانات بنجاح';
+                successMessage.style.display = 'block';
+                
+                // التحقق من وجود مستخدمين في النظام
+                const users = await storeDB.getAll('users');
+                if (users.length === 0) {
+                    successMessage.textContent = 'قاعدة البيانات جاهزة، يرجى تهيئة البيانات بالنقر على الرابط أدناه';
+                    successMessage.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'تعذر الاتصال بقاعدة البيانات: ' + error.message;
+                errorMessage.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
