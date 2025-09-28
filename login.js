@@ -28,7 +28,7 @@ class LoginSystem {
     // تهيئة قاعدة البيانات
     async initializeDatabase() {
         try {
-            if (typeof clinicDB !== 'undefined') {
+            if (typeof clinicDB !== 'ClinicDB') {
                 this.db = clinicDB;
                 
                 // الانتظار حتى تكتمل تهيئة قاعدة البيانات
