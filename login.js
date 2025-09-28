@@ -1,4 +1,6 @@
 // login.js - نظام تسجيل الدخول المتقدم للعيادة الطبية
+import storeDB from './db.js';
+
 class LoginSystem {
     constructor() {
         this.db = null;
