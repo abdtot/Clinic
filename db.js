@@ -3,7 +3,7 @@
 class ClinicDatabase {
     constructor() {
         this.dbName = 'ClinicDB';
-        this.version = 8; // زيادة الإصدار لإضافة الميزات المتقدمة
+        this.version = 6; // زيادة الإصدار لإضافة الميزات المتقدمة
         this.db = null;
         this.auditLogger = new AuditLogger(this);
         this.init();
