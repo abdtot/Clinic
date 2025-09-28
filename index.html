@@ -391,6 +391,29 @@
     <script src="db.js"></script>
     
     <script>
+        // تهيئة قاعدة البيانات
+            async function initializeDatabase() {
+                try {
+                    clinicDB = new ClinicDatabase();
+                    await clinicDB.init();
+                    console.log('تم تهيئة قاعدة البيانات بنجاح');
+                    
+                    // التحقق من وجود بيانات تسجيل دخول محفوظة
+                    const savedUsername = localStorage.getItem('savedUsername');
+                    const savedPassword = localStorage.getItem('savedPassword');
+                    
+                    if (savedUsername && savedPassword) {
+                        usernameInput.value = savedUsername;
+                        passwordInput.value = savedPassword;
+                        document.getElementById('rememberMe').checked = true;
+                    }
+                } catch (error) {
+                    console.error('فشل في تهيئة قاعدة البيانات:', error);
+                    showError('فشل في تهيئة النظام. يرجى تحديث الصفحة.');
+                }
+            }
+            
+        
         // تهيئة التطبيق
         document.addEventListener('DOMContentLoaded', function() {
             const loginForm = document.getElementById('loginForm');
@@ -427,27 +450,6 @@
                 icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
             });
             
-            // تهيئة قاعدة البيانات
-            async function initializeDatabase() {
-                try {
-                    clinicDB = new ClinicDatabase();
-                    await clinicDB.init();
-                    console.log('تم تهيئة قاعدة البيانات بنجاح');
-                    
-                    // التحقق من وجود بيانات تسجيل دخول محفوظة
-                    const savedUsername = localStorage.getItem('savedUsername');
-                    const savedPassword = localStorage.getItem('savedPassword');
-                    
-                    if (savedUsername && savedPassword) {
-                        usernameInput.value = savedUsername;
-                        passwordInput.value = savedPassword;
-                        document.getElementById('rememberMe').checked = true;
-                    }
-                } catch (error) {
-                    console.error('فشل في تهيئة قاعدة البيانات:', error);
-                    showError('فشل في تهيئة النظام. يرجى تحديث الصفحة.');
-                }
-            }
             
             // عرض رسالة الخطأ
             function showError(message) {
