@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإعدادات المتقدمة - العيادة الطبية</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles/settings.css">
+</head>
+<body>
+    <div class="settings-container">
+        <!-- شريط العنوان -->
+        <header class="settings-header">
+            <div class="header-content">
+                <button class="back-button" onclick="goBack()">
+                    <i class="icon-arrow-right"></i>
+                </button>
+                <h1 class="settings-title">الإعدادات المتقدمة</h1>
+                <div class="header-actions">
+                    <button class="btn-save-all" onclick="saveAllSettings()">
+                        <i class="icon-save"></i>
+                        حفظ الكل
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- محتوى الإعدادات -->
+        <div class="settings-content">
+            <!-- شريط البحث والتصفية -->
+            <div class="settings-toolbar">
+                <div class="search-box">
+                    <i class="icon-search"></i>
+                    <input type="text" id="settingsSearch" placeholder="ابحث في الإعدادات..." oninput="filterSettings()">
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-category="all">الكل</button>
+                    <button class="filter-btn" data-category="general">عام</button>
+                    <button class="filter-btn" data-category="doctor">الدكتور</button>
+                    <button class="filter-btn" data-category="appointments">المواعيد</button>
+                    <button class="filter-btn" data-category="billing">الفواتير</button>
+                    <button class="filter-btn" data-category="security">الأمان</button>
+                    <button class="filter-btn" data-category="notifications">الإشعارات</button>
+                    <button class="filter-btn" data-category="advanced">متقدم</button>
+                </div>
+            </div>
+
+            <!-- أقسام الإعدادات -->
+            <div class="settings-sections">
+                <!-- قسم الإعدادات العامة -->
+                <section class="settings-section" data-category="general">
+                    <div class="section-header" onclick="toggleSection('general')">
+                        <h2 class="section-title">
+                            <i class="icon-settings"></i>
+                            الإعدادات العامة
+                        </h2>
+                        <i class="icon-chevron-down section-toggle"></i>
+                    </div>
+                    <div class="section-content" id="general-section">
+                        <div class="settings-grid">
+                            <!-- إعدادات العيادة -->
+                            <div class="setting-group">
+                                <h3 class="group-title">معلومات العيادة</h3>
+                                
+                                <div class="setting-item">
+                                    <label class="setting-label" for="clinic_name">اسم العيادة</label>
+                                    <p class="setting-description">اسم العيادة كما يظهر في النظام</p>
+                                    <input type="text" id="clinic_name" class="setting-input" data-type="text">
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label">شعار العيادة</label>
+                                    <p class="setting-description">شعار العيادة</p>
+                                    <div class="image-upload-container">
+                                        <div class="image-preview" id="clinic_logo_preview">
+                                            <i class="icon-image"></i>
+                                            <span>لم يتم اختيار صورة</span>
+                                        </div>
+                                        <input type="file" id="clinic_logo" class="setting-file-input" accept="image/*" data-type="image" hidden>
+                                        <button type="button" class="btn-upload" onclick="document.getElementById('clinic_logo').click()">
+                                            <i class="icon-upload"></i>
+                                            اختر صورة
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label" for="clinic_address">عنوان العيادة</label>
+                                    <p class="setting-description">العنوان الكامل للعيادة</p>
+                                    <textarea id="clinic_address" class="setting-textarea" data-type="textarea" rows="3"></textarea>
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label" for="clinic_phone">هاتف العيادة</label>
+                                    <p class="setting-description">رقم هاتف العيادة</p>
+                                    <input type="tel" id="clinic_phone" class="setting-input" data-type="tel">
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label" for="clinic_email">بريد العيادة</label>
+                                    <p class="setting-description">البريد الإلكتروني للعيادة</p>
+                                    <input type="email" id="clinic_email" class="setting-input" data-type="email">
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label" for="clinic_website">موقع العيادة</label>
+                                    <p class="setting-description">الموقع الإلكتروني للعيادة</p>
+                                    <input type="url" id="clinic_website" class="setting-input" data-type="url">
+                                </div>
+                            </div>
+
+                            <!-- إعدادات العملة واللغة -->
+                            <div class="setting-group">
+                                <h3 class="group-title">الإعدادات الإقليمية</h3>
+                                
+                                <div class="setting-item">
+                                    <label class="setting-label" for="currency">العملة</label>
+                                    <p class="setting-description">العملة المستخدمة في الفواتير</p>
+                                    <select id="currency" class="setting-select" data-type="select">
+                                        <option value="SAR">ريال سعودي (SAR)</option>
+                                        <option value="USD">دولار أمريكي (USD)</option>
+                                        <option value="EUR">يورو (EUR)</option>
+                                        <option value="EGP">جنيه مصري (EGP)</option>
+                                    </select>
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label" for="currency_symbol">رمز العملة</label>
+                                    <p class="setting-description">رمز العملة المستخدم</p>
+                                    <input type="text" id="currency_symbol" class="setting-input" data-type="text">
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label" for="decimal_places">المنازل العشرية</label>
+                                    <p class="setting-description">عدد المنازل العشرية في المبالغ</p>
+                                    <input type="number" id="decimal_places" class="setting-input" data-type="number" min="0" max="4">
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label" for="language">اللغة</label>
+                                    <p class="setting-description">لغة النظام</p>
+                                    <select id="language" class="setting-select" data-type="select">
+                                        <option value="ar">العربية</option>
+                                        <option value="en">English</option>
+                                    </select>
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label" for="timezone">المنطقة الزمنية</label>
+                                    <p class="setting-description">المنطقة الزمنية للعيادة</p>
+                                    <select id="timezone" class="setting-select" data-type="select">
+                                        <option value="Asia/Riyadh">Asia/Riyadh</option>
+                                        <option value="UTC">UTC</option>
+                                        <option value="Europe/London">Europe/London</option>
+                                        <option value="America/New_York">America/New_York</option>
+                                    </select>
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label" for="date_format">تنسيق التاريخ</label>
+                                    <p class="setting-description">طريقة عرض التاريخ</p>
+                                    <select id="date_format" class="setting-select" data-type="select">
+                                        <option value="dd/MM/yyyy">يوم/شهر/سنة (dd/MM/yyyy)</option>
+                                        <option value="MM/dd/yyyy">شهر/يوم/سنة (MM/dd/yyyy)</option>
+                                        <option value="yyyy-MM-dd">سنة-شهر-يوم (yyyy-MM-dd)</option>
+                                    </select>
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label" for="time_format">تنسيق الوقت</label>
+                                    <p class="setting-description">طريقة عرض الوقت</p>
+                                    <select id="time_format" class="setting-select" data-type="select">
+                                        <option value="12h">12 ساعة</option>
+                                        <option value="24h">24 ساعة</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section-actions">
+                            <button class="btn-save-section" onclick="saveSectionSettings('general')">
+                                <i class="icon-save"></i>
+                                حفظ الإعدادات العامة
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- قسم إعدادات الدكتور -->
+                <section class="settings-section" data-category="doctor">
+                    <div class="section-header" onclick="toggleSection('doctor')">
+                        <h2 class="section-title">
+                            <i class="icon-user-md"></i>
+                            إعدادات الدكتور
+                        </h2>
+                        <i class="icon-chevron-down section-toggle"></i>
+                    </div>
+                    <div class="section-content" id="doctor-section">
+                        <div class="settings-grid">
+                            <div class="setting-group">
+                                <div class="setting-item">
+                                    <label class="setting-label" for="doctor_name">اسم الدكتور</label>
+                                    <p class="setting-description">الاسم الكامل للدكتور</p>
+                                    <input type="text" id="doctor_name" class="setting-input" data-type="text">
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label" for="doctor_specialization">التخصص</label>
+                                    <p class="setting-description">تخصص الدكتور</p>
+                                    <input type="text" id="doctor_specialization" class="setting-input" data-type="text">
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label" for="doctor_license">رقم الترخيص</label>
+                                    <p class="setting-description">رقم ترخيص مزاولة المهنة</p>
+                                    <input type="text" id="doctor_license" class="setting-input" data-type="text">
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label">التوقيع</label>
+                                    <p class="setting-description">توقيع الدكتور للتقارير</p>
+                                    <div class="image-upload-container">
+                                        <div class="image-preview" id="doctor_signature_preview">
+                                            <i class="icon-signature"></i>
+                                            <span>لم يتم اختيار توقيع</span>
+                                        </div>
+                                        <input type="file" id="doctor_signature" class="setting-file-input" accept="image/*" data-type="image" hidden>
+                                        <button type="button" class="btn-upload" onclick="document.getElementById('doctor_signature').click()">
+                                            <i class="icon-upload"></i>
+                                            اختر التوقيع
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label" for="doctor_qualifications">المؤهلات</label>
+                                    <p class="setting-description">المؤهلات العلمية للدكتور</p>
+                                    <textarea id="doctor_qualifications" class="setting-textarea" data-type="textarea" rows="4"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section-actions">
+                            <button class="btn-save-section" onclick="saveSectionSettings('doctor')">
+                                <i class="icon-save"></i>
+                                حفظ إعدادات الدكتور
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- قسم إعدادات المواعيد -->
+                <section class="settings-section" data-category="appointments">
+                    <div class="section-header" onclick="toggleSection('appointments')">
+                        <h2 class="section-title">
+                            <i class="icon-calendar"></i>
+                            إعدادات المواعيد
+                        </h2>
+                        <i class="icon-chevron-down section-toggle"></i>
+                    </div>
+                    <div class="section-content" id="appointments-section">
+                        <div class="settings-grid">
+                            <div class="setting-group">
+                                <div class="setting-item">
+                                    <label class="setting-label" for="appointment_duration">مدة الموعد (دقيقة)</label>
+                                    <p class="setting-description">المدة الافتراضية لكل موعد بالدقائق</p>
+                                    <input type="number" id="appointment_duration" class="setting-input" data-type="number" min="5" max="120">
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label" for="working_hours_start">بداية الدوام</label>
+                                    <p class="setting-description">وقت بداية الدوام اليومي</p>
+                                    <input type="time" id="working_hours_start" class="setting-input" data-type="time">
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label" for="working_hours_end">نهاية الدوام</label>
+                                    <p class="setting-description">وقت نهاية الدوام اليومي</p>
+                                    <input type="time" id="working_hours_end" class="setting-input" data-type="time">
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label" for="appointment_buffer">فترة الراحة بين المواعيد (دقيقة)</label>
+                                    <p class="setting-description">الفترة بين المواعيد المتتالية</p>
+                                    <input type="number" id="appointment_buffer" class="setting-input" data-type="number" min="0" max="60">
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label" for="max_appointments_per_day">الحد الأقصى للمواعيد اليومية</label>
+                                    <p class="setting-description">أقصى عدد للمواعيد في اليوم الواحد</p>
+                                    <input type="number" id="max_appointments_per_day" class="setting-input" data-type="number" min="1" max="100">
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label">السماح بالحجز أونلاين</label>
+                                    <p class="setting-description">تفعيل نظام الحجز عبر الإنترنت</p>
+                                    <label class="switch">
+                                        <input type="checkbox" id="allow_online_booking" data-type="boolean">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label" for="advance_booking_days">أيام الحجز المسبق</label>
+                                    <p class="setting-description">أقصى مدة للحجز المسبق بالأيام</p>
+                                    <input type="number" id="advance_booking_days" class="setting-input" data-type="number" min="1" max="365">
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label">تأكيد المواعيد تلقائياً</label>
+                                    <p class="setting-description">تأكيد المواعيد الجديدة تلقائياً</p>
+                                    <label class="switch">
+                                        <input type="checkbox" id="auto_confirm_appointments" data-type="boolean">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label" for="cancellation_policy_hours">سياسة الإلغاء (ساعة)</label>
+                                    <p class="setting-description">أقل مدة مسموحة لإلغاء الموعد</p>
+                                    <input type="number" id="cancellation_policy_hours" class="setting-input" data-type="number" min="1" max="168">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section-actions">
+                            <button class="btn-save-section" onclick="saveSectionSettings('appointments')">
+                                <i class="icon-save"></i>
+                                حفظ إعدادات المواعيد
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- قسم إعدادات الفواتير -->
+                <section class="settings-section" data-category="billing">
+                    <div class="section-header" onclick="toggleSection('billing')">
+                        <h2 class="section-title">
+                            <i class="icon-invoice"></i>
+                            إعدادات الفواتير والمحاسبة
+                        </h2>
+                        <i class="icon-chevron-down section-toggle"></i>
+                    </div>
+                    <div class="section-content" id="billing-section">
+                        <div class="settings-grid">
+                            <div class="setting-group">
+                                <div class="setting-item">
+                                    <label class="setting-label" for="tax_rate">نسبة الضريبة (%)</label>
+                                    <p class="setting-description">نسبة الضريبة المطبقة على الفواتير</p>
+                                    <input type="number" id="tax_rate" class="setting-input" data-type="number" min="0" max="100" step="0.1">
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label" for="invoice_prefix">بادئة رقم الفاتورة</label>
+                                    <p class="setting-description">بادئة أرقام الفواتير</p>
+                                    <input type="text" id="invoice_prefix" class="setting-input" data-type="text">
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label" for="next_invoice_number">رقم الفاتورة التالي</label>
+                                    <p class="setting-description">الرقم التالي للفاتورة</p>
+                                    <input type="number" id="next_invoice_number" class="setting-input" data-type="number" min="1">
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label">إنشاء الفاتورة تلقائياً</label>
+                                    <p class="setting-description">إنشاء فاتورة تلقائياً بعد انتهاء الكشف</p>
+                                    <label class="switch">
+                                        <input type="checkbox" id="auto_generate_invoice" data-type="boolean">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label" for="late_payment_fee">رسوم التأخير</label>
+                                    <p class="setting-description">رسوم التأخير في السداد</p>
+                                    <input type="number" id="late_payment_fee" class="setting-input" data-type="number" min="0">
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label" for="discount_policy">سياسة الخصم</label>
+                                    <p class="setting-description">سياسة الخصم المطبقة</p>
+                                    <select id="discount_policy" class="setting-select" data-type="select">
+                                        <option value="none">لا يوجد خصم</option>
+                                        <option value="senior">كبار السن</option>
+                                        <option value="insurance">تأمين</option>
+                                        <option value="loyalty">ولاء</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section-actions">
+                            <button class="btn-save-section" onclick="saveSectionSettings('billing')">
+                                <i class="icon-save"></i>
+                                حفظ إعدادات الفواتير
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- قسم إعدادات الأمان -->
+                <section class="settings-section" data-category="security">
+                    <div class="section-header" onclick="toggleSection('security')">
+                        <h2 class="section-title">
+                            <i class="icon-shield"></i>
+                            إعدادات الأمان والنظام
+                        </h2>
+                        <i class="icon-chevron-down section-toggle"></i>
+                    </div>
+                    <div class="section-content" id="security-section">
+                        <div class="settings-grid">
+                            <div class="setting-group">
+                                <div class="setting-item">
+                                    <label class="setting-label" for="session_timeout">مدة الجلسة (دقيقة)</label>
+                                    <p class="setting-description">مدة انتهاء صلاحية الجلسة بعد عدم النشاط</p>
+                                    <input type="number" id="session_timeout" class="setting-input" data-type="number" min="5" max="480">
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label">تسجيل خروج تلقائي</label>
+                                    <p class="setting-description">تسجيل الخروج تلقائياً بعد مدة عدم النشاط</p>
+                                    <label class="switch">
+                                        <input type="checkbox" id="auto_logout" data-type="boolean">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label">نسخ احتياطي تلقائي</label>
+                                    <p class="setting-description">إنشاء نسخ احتياطية تلقائية</p>
+                                    <label class="switch">
+                                        <input type="checkbox" id="backup_auto" data-type="boolean">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label" for="backup_interval">فترة النسخ الاحتياطي (أيام)</label>
+                                    <p class="setting-description">الفترة بين النسخ الاحتياطية التلقائية</p>
+                                    <input type="number" id="backup_interval" class="setting-input" data-type="number" min="1" max="30">
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label" for="max_backup_files">الحد الأقصى للنسخ الاحتياطية</label>
+                                    <p class="setting-description">أقصى عدد للنسخ الاحتياطية المحفوظة</p>
+                                    <input type="number" id="max_backup_files" class="setting-input" data-type="number" min="1" max="50">
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label" for="password_policy">سياسة كلمات المرور</label>
+                                    <p class="setting-description">قوة كلمات المرور المطلوبة</p>
+                                    <select id="password_policy" class="setting-select" data-type="select">
+                                        <option value="low">منخفضة</option>
+                                        <option value="medium">متوسطة</option>
+                                        <option value="high">عالية</option>
+                                    </select>
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label" for="login_attempts">محاولات الدخول المسموحة</label>
+                                    <p class="setting-description">عدد محاولات الدخول الفاشلة المسموحة</p>
+                                    <input type="number" id="login_attempts" class="setting-input" data-type="number" min="1" max="10">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section-actions">
+                            <button class="btn-save-section" onclick="saveSectionSettings('security')">
+                                <i class="icon-save"></i>
+                                حفظ إعدادات الأمان
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- قسم إعدادات الإشعارات -->
+                <section class="settings-section" data-category="notifications">
+                    <div class="section-header" onclick="toggleSection('notifications')">
+                        <h2 class="section-title">
+                            <i class="icon-bell"></i>
+                            إعدادات الإشعارات
+                        </h2>
+                        <i class="icon-chevron-down section-toggle"></i>
+                    </div>
+                    <div class="section-content" id="notifications-section">
+                        <div class="settings-grid">
+                            <div class="setting-group">
+                                <div class="setting-item">
+                                    <label class="setting-label">تذكير المواعيد</label>
+                                    <p class="setting-description">إرسال تذكير قبل الموعد</p>
+                                    <label class="switch">
+                                        <input type="checkbox" id="notify_appointment_reminder" data-type="boolean">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label" for="reminder_before_hours">مدة التذكير (ساعة)</label>
+                                    <p class="setting-description">إرسال التذكير قبل الموعد بالساعات</p>
+                                    <input type="number" id="reminder_before_hours" class="setting-input" data-type="number" min="1" max="168">
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label">إشعار المريض الجديد</label>
+                                    <p class="setting-description">إشعار عند تسجيل مريض جديد</p>
+                                    <label class="switch">
+                                        <input type="checkbox" id="notify_new_patient" data-type="boolean">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label">ملخص يومي</label>
+                                    <p class="setting-description">إرسال ملخص يومي عن النشاط</p>
+                                    <label class="switch">
+                                        <input type="checkbox" id="notify_daily_summary" data-type="boolean">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label">إشعار نقص المخزون</label>
+                                    <p class="setting-description">إشعار عند نقص أدوية معينة</p>
+                                    <label class="switch">
+                                        <input type="checkbox" id="notify_low_stock" data-type="boolean">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label">تفعيل الرسائل النصية</label>
+                                    <p class="setting-description">تفعيل إرسال الرسائل النصية</p>
+                                    <label class="switch">
+                                        <input type="checkbox" id="sms_integration" data-type="boolean">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="setting-item advanced-setting">
+                                    <label class="setting-label">تفعيل البريد الإلكتروني</label>
+                                    <p class="setting-description">تفعيل إرسال الإشعارات بالبريد</p>
+                                    <label class="switch">
+                                        <input type="checkbox" id="email_integration" data-type="boolean">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section-actions">
+                            <button class="btn-save-section" onclick="saveSectionSettings('notifications')">
+                                <i class="icon-save"></i>
+                                حفظ إعدادات الإشعارات
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- قسم الإعدادات المتقدمة -->
+                <section class="settings-section" data-category="advanced">
+                    <div class="section-header" onclick="toggleSection('advanced')">
+                        <h2 class="section-title">
+                            <i class="icon-cog"></i>
+                            الإعدادات المتقدمة
+                        </h2>
+                        <i class="icon-chevron-down section-toggle"></i>
+                    </div>
+                    <div class="section-content" id="advanced-section">
+                        <div class="settings-grid">
+                            <div class="setting-group">
+                                <div class="setting-item">
+                                    <label class="setting-label">سجل التدقيق</label>
+                                    <p class="setting-description">تسجيل جميع عمليات النظام</p>
+                                    <label class="switch">
+                                        <input type="checkbox" id="enable_audit_log" data-type="boolean">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label" for="data_retention_period">فترة حفظ البيانات (يوم)</label>
+                                    <p class="setting-description">فترة حفظ البيانات قبل الحذف التلقائي</p>
+                                    <input type="number" id="data_retention_period" class="setting-input" data-type="number" min="30" max="1095">
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label">دعم تعدد الأطباء</label>
+                                    <p class="setting-description">تفعيل نظام تعدد الأطباء</p>
+                                    <label class="switch">
+                                        <input type="checkbox" id="multi_doctor_support" data-type="boolean">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label">إدارة الغرف</label>
+                                    <p class="setting-description">تفعيل نظام إدارة غرف الكشف</p>
+                                    <label class="switch">
+                                        <input type="checkbox" id="room_management" data-type="boolean">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="setting-label">دمج شركات التأمين</label>
+                                    <p class="setting-description">تفعيل نظام دمج شركات التأمين</p>
+                                    <label class="switch">
+                                        <input type="checkbox" id="insurance_integration" data-type="boolean">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section-actions">
+                            <button class="btn-save-section" onclick="saveSectionSettings('advanced')">
+                                <i class="icon-save"></i>
+                                حفظ الإعدادات المتقدمة
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- رسائل التحميل والحالة -->
+        <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>جاري حفظ الإعدادات...</p>
+        </div>
+
+        <div id="toastContainer" class="toast-container"></div>
+    </div>
+
+    <script src="db.js"></script>
+    <script src="settings.js"></script>
+</body>
+</html>
