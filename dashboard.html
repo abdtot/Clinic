@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - نظام إدارة العيادة الطبية</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- الهيكل الرئيسي -->
+    <div class="dashboard-container">
+        <!-- الشريط الجانبي -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="clinic-info">
+                    <div class="clinic-logo">
+                        <i class="fas fa-stethoscope"></i>
+                    </div>
+                    <div class="clinic-details">
+                        <h2 id="clinicName">العيادة الطبية</h2>
+                        <span id="clinicType">عيادة متخصصة</span>
+                    </div>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul class="nav-menu">
+                    <li class="nav-item active">
+                        <a href="#dashboard" class="nav-link">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>لوحة التحكم</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#appointments" class="nav-link">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>المواعيد</span>
+                            <span class="badge" id="appointmentsBadge">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#patients" class="nav-link">
+                            <i class="fas fa-user-injured"></i>
+                            <span>المرضى</span>
+                            <span class="badge" id="patientsBadge">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#medical-records" class="nav-link">
+                            <i class="fas fa-file-medical"></i>
+                            <span>السجلات الطبية</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#prescriptions" class="nav-link">
+                            <i class="fas fa-prescription"></i>
+                            <span>الوصفات الطبية</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#invoices" class="nav-link">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span>الفواتير</span>
+                            <span class="badge" id="invoicesBadge">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item has-submenu">
+                        <a href="#reports" class="nav-link">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>التقارير والإحصائيات</span>
+                            <i class="fas fa-chevron-down submenu-toggle"></i>
+                        </a>
+                        <ul class="submenu">
+                            <li><a href="#financial-reports">التقارير المالية</a></li>
+                            <li><a href="#medical-reports">التقارير الطبية</a></li>
+                            <li><a href="#performance-reports">تقارير الأداء</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#inventory" class="nav-link">
+                            <i class="fas fa-pills"></i>
+                            <span>المخزون والأدوية</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#lab" class="nav-link">
+                            <i class="fas fa-flask"></i>
+                            <span>المختبر والتحاليل</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#radiology" class="nav-link">
+                            <i class="fas fa-x-ray"></i>
+                            <span>الأشعة</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#settings" class="nav-link">
+                            <i class="fas fa-cogs"></i>
+                            <span>الإعدادات</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name" id="userName">د. غير معروف</span>
+                        <span class="user-role" id="userRole">طبيب</span>
+                    </div>
+                </div>
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- المحتوى الرئيسي -->
+        <main class="main-content">
+            <!-- شريط العنوان العلوي -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 id="pageTitle">لوحة التحكم</h1>
+                    <div class="breadcrumb">
+                        <span>الرئيسية</span>
+                        <i class="fas fa-chevron-left"></i>
+                        <span id="currentPage">لوحة التحكم</span>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <div class="header-actions">
+                        <!-- بحث -->
+                        <div class="search-box">
+                            <input type="text" id="globalSearch" placeholder="بحث في النظام...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        
+                        <!-- الإشعارات -->
+                        <div class="notification-dropdown">
+                            <button class="notification-btn" id="notificationBtn">
+                                <i class="fas fa-bell"></i>
+                                <span class="notification-count" id="notificationCount">3</span>
+                            </button>
+                            <div class="notification-panel" id="notificationPanel">
+                                <div class="notification-header">
+                                    <h3>الإشعارات</h3>
+                                    <button class="mark-all-read" id="markAllRead">تعيين الكل كمقروء</button>
+                                </div>
+                                <div class="notification-list" id="notificationList">
+                                    <!-- سيتم ملء الإشعارات ديناميكياً -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- المستخدم -->
+                        <div class="user-dropdown">
+                            <button class="user-btn" id="userBtn">
+                                <div class="user-avatar-sm">
+                                    <i class="fas fa-user-md"></i>
+                                </div>
+                                <span id="userNameSm">د. غير معروف</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="user-menu" id="userMenu">
+                                <a href="#profile" class="user-menu-item">
+                                    <i class="fas fa-user"></i>
+                                    <span>الملف الشخصي</span>
+                                </a>
+                                <a href="#settings" class="user-menu-item">
+                                    <i class="fas fa-cog"></i>
+                                    <span>الإعدادات</span>
+                                </a>
+                                <div class="user-menu-divider"></div>
+                                <button class="user-menu-item logout-menu-item" id="logoutMenuBtn">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>تسجيل الخروج</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- محتوى الصفحة -->
+            <div class="page-content">
+                <!-- قسم لوحة التحكم -->
+                <section id="dashboardSection" class="page-section active">
+                    <!-- بطاقات الإحصائيات -->
+                    <div class="stats-grid">
+                        <div class="stat-card primary">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-injured"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalPatients">0</h3>
+                                <span>إجمالي المرضى</span>
+                            </div>
+                            <div class="stat-trend">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>+12%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card success">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="todayAppointments">0</h3>
+                                <span>مواعيد اليوم</span>
+                            </div>
+                            <div class="stat-trend">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>+5%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card warning">
+                            <div class="stat-icon">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="pendingInvoices">0</h3>
+                                <span>فواتير معلقة</span>
+                            </div>
+                            <div class="stat-trend">
+                                <i class="fas fa-arrow-down"></i>
+                                <span>-3%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card danger">
+                            <div class="stat-icon">
+                                <i class="fas fa-pills"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="lowStockItems">0</h3>
+                                <span>أدوية منخفضة المخزون</span>
+                            </div>
+                            <div class="stat-trend">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>تحذير</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- المخططات والإحصائيات -->
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>الإيرادات الشهرية</h3>
+                                <select id="revenuePeriod">
+                                    <option value="month">هذا الشهر</option>
+                                    <option value="quarter">هذا الربع</option>
+                                    <option value="year">هذه السنة</option>
+                                </select>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>توزيع المرضى حسب العمر</h3>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="patientsAgeChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- المواعيد القادمة -->
+                    <div class="content-grid">
+                        <div class="content-card upcoming-appointments">
+                            <div class="card-header">
+                                <h3>المواعيد القادمة</h3>
+                                <a href="#appointments" class="view-all">عرض الكل</a>
+                            </div>
+                            <div class="card-body">
+                                <div class="appointments-list" id="upcomingAppointmentsList">
+                                    <!-- سيتم ملء المواعيد ديناميكياً -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- المرضى الجدد -->
+                        <div class="content-card recent-patients">
+                            <div class="card-header">
+                                <h3>المرضى المضافين حديثاً</h3>
+                                <a href="#patients" class="view-all">عرض الكل</a>
+                            </div>
+                            <div class="card-body">
+                                <div class="patients-list" id="recentPatientsList">
+                                    <!-- سيتم ملء المرضى ديناميكياً -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- التنبيهات والإشعارات المهمة -->
+                    <div class="alerts-section">
+                        <div class="content-card">
+                            <div class="card-header">
+                                <h3>التنبيهات المهمة</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="alerts-list" id="importantAlertsList">
+                                    <!-- سيتم ملء التنبيهات ديناميكياً -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- قسم المواعيد -->
+                <section id="appointmentsSection" class="page-section">
+                    <div class="section-header">
+                        <h2>إدارة المواعيد</h2>
+                        <div class="section-actions">
+                            <button class="btn btn-primary" id="addAppointmentBtn">
+                                <i class="fas fa-plus"></i>
+                                إضافة موعد جديد
+                            </button>
+                            <button class="btn btn-secondary" id="exportAppointmentsBtn">
+                                <i class="fas fa-download"></i>
+                                تصدير
+                            </button>
+                            <button class="btn btn-secondary" id="filterAppointmentsBtn">
+                                <i class="fas fa-filter"></i>
+                                تصفية
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- شريط الإحصائيات السريعة -->
+                    <div class="quick-stats">
+                        <div class="quick-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="totalAppointments">0</span>
+                                <span class="stat-label">إجمالي المواعيد</span>
+                            </div>
+                        </div>
+                        <div class="quick-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="todayAppointmentsCount">0</span>
+                                <span class="stat-label">مواعيد اليوم</span>
+                            </div>
+                        </div>
+                        <div class="quick-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="conflictAppointments">0</span>
+                                <span class="stat-label">تعارضات</span>
+                            </div>
+                        </div>
+                        <div class="quick-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="completedAppointments">0</span>
+                                <span class="stat-label">مكتملة</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- أدوات التحكم والتقويم -->
+                    <div class="appointments-controls">
+                        <div class="date-navigation">
+                            <button class="btn btn-outline" id="prevWeekBtn">
+                                <i class="fas fa-chevron-right"></i>
+                                الأسبوع السابق
+                            </button>
+                            <div class="current-period" id="currentPeriod">هذا الأسبوع</div>
+                            <button class="btn btn-outline" id="nextWeekBtn">
+                                الأسبوع القادم
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="view-options">
+                            <div class="view-buttons">
+                                <button class="view-btn active" data-view="day">يومي</button>
+                                <button class="view-btn" data-view="week">أسبوعي</button>
+                                <button class="view-btn" data-view="month">شهري</button>
+                                <button class="view-btn" data-view="list">قائمة</button>
+                            </div>
+                            
+                            <div class="filter-options">
+                                <select id="statusFilter" class="filter-select">
+                                    <option value="all">جميع الحالات</option>
+                                    <option value="scheduled">مجدول</option>
+                                    <option value="confirmed">مؤكد</option>
+                                    <option value="completed">مكتمل</option>
+                                    <option value="cancelled">ملغى</option>
+                                </select>
+                                
+                                <select id="doctorFilter" class="filter-select">
+                                    <option value="all">جميع الأطباء</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- محتوى المواعيد -->
+                    <div class="appointments-content">
+                        <!-- عرض التقويم -->
+                        <div class="calendar-view active" id="calendarView">
+                            <div class="calendar-header">
+                                <div class="calendar-nav">
+                                    <button class="nav-btn" id="prevDayBtn">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                    <h3 id="currentDate">السبت ١ يناير ٢٠٢٤</h3>
+                                    <button class="nav-btn" id="nextDayBtn">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                </div>
+                                <div class="calendar-actions">
+                                    <button class="btn btn-sm btn-outline" id="todayBtn">اليوم</button>
+                                </div>
+                            </div>
+                            
+                            <div class="time-slots">
+                                <div class="time-column">
+                                    <div class="time-header">الوقت</div>
+                                    <div class="time-slots-list">
+                                        <!-- سيتم ملء الأوقات ديناميكياً -->
+                                    </div>
+                                </div>
+                                <div class="appointments-column">
+                                    <div class="day-header" id="dayHeader">السبت</div>
+                                    <div class="appointments-slots" id="appointmentsSlots">
+                                        <!-- سيتم ملء المواعيد ديناميكياً -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- عرض القائمة -->
+                        <div class="list-view" id="listView">
+                            <div class="appointments-table-container">
+                                <table class="appointments-table">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                <input type="checkbox" id="selectAllAppointments">
+                                            </th>
+                                            <th>رقم الموعد</th>
+                                            <th>المريض</th>
+                                            <th>الطبيب</th>
+                                            <th>التاريخ والوقت</th>
+                                            <th>النوع</th>
+                                            <th>الحالة</th>
+                                            <th>الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="appointmentsTableBody">
+                                        <!-- سيتم ملء الجدول ديناميكياً -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="table-footer">
+                                <div class="table-info">
+                                    عرض <span id="currentPageSize">10</span> من أصل <span id="totalAppointmentsCount">0</span> موعد
+                                </div>
+                                <div class="pagination" id="appointmentsPagination">
+                                    <!-- سيتم ملء الترقيم ديناميكياً -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- قسم المرضى -->
+                <section id="patientsSection" class="page-section">
+                    <div class="section-header">
+                        <h2>إدارة المرضى</h2>
+                        <div class="section-actions">
+                            <button class="btn btn-primary" id="addPatientBtn">
+                                <i class="fas fa-plus"></i>
+                                إضافة مريض جديد
+                            </button>
+                            <button class="btn btn-secondary" id="importPatientsBtn">
+                                <i class="fas fa-upload"></i>
+                                استيراد
+                            </button>
+                            <button class="btn btn-secondary" id="exportPatientsBtn">
+                                <i class="fas fa-download"></i>
+                                تصدير
+                            </button>
+                            <button class="btn btn-secondary" id="bulkActionsBtn">
+                                <i class="fas fa-cog"></i>
+                                إجراءات جماعية
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- شريط الإحصائيات السريعة -->
+                    <div class="quick-stats">
+                        <div class="quick-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-injured"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="totalPatientsCount">0</span>
+                                <span class="stat-label">إجمالي المرضى</span>
+                            </div>
+                        </div>
+                        <div class="quick-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="newPatientsToday">0</span>
+                                <span class="stat-label">جدد اليوم</span>
+                            </div>
+                        </div>
+                        <div class="quick-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-day"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="patientsWithAppointments">0</span>
+                                <span class="stat-label">لديهم مواعيد</span>
+                            </div>
+                        </div>
+                        <div class="quick-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="inactivePatients">0</span>
+                                <span class="stat-label">غير نشطين</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- أدوات البحث والتصفية -->
+                    <div class="patients-controls">
+                        <div class="search-section">
+                            <div class="search-box patients-search">
+                                <input type="text" id="patientsSearch" placeholder="ابحث بالاسم، الرقم الوطني، الهاتف...">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <button class="btn btn-outline" id="advancedSearchToggle">
+                                <i class="fas fa-sliders-h"></i>
+                                بحث متقدم
+                            </button>
+                        </div>
+                        
+                        <div class="filter-section">
+                            <div class="filter-group">
+                                <label>التصنيف:</label>
+                                <select id="categoryFilter" class="filter-select">
+                                    <option value="all">جميع التصنيفات</option>
+                                    <option value="general">عام</option>
+                                    <option value="children">أطفال</option>
+                                    <option value="adults">كبار</option>
+                                    <option value="chronic">مرضى مزمنين</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label>الحالة:</label>
+                                <select id="statusFilter" class="filter-select">
+                                    <option value="all">جميع الحالات</option>
+                                    <option value="active">نشط</option>
+                                    <option value="inactive">غير نشط</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label>فرز حسب:</label>
+                                <select id="sortFilter" class="filter-select">
+                                    <option value="newest">الأحدث</option>
+                                    <option value="oldest">الأقدم</option>
+                                    <option value="name">الاسم</option>
+                                    <option value="lastVisit">آخر زيارة</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- البحث المتقدم -->
+                    <div class="advanced-search" id="advancedSearchPanel" style="display: none;">
+                        <div class="advanced-search-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>فئة العمر:</label>
+                                    <select id="ageRangeFilter">
+                                        <option value="all">جميع الأعمار</option>
+                                        <option value="0-12">أطفال (0-12)</option>
+                                        <option value="13-18">مراهقين (13-18)</option>
+                                        <option value="19-35">شباب (19-35)</option>
+                                        <option value="36-60">كبار (36-60)</option>
+                                        <option value="60+">مسنين (60+)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>فصيلة الدم:</label>
+                                    <select id="bloodTypeFilter">
+                                        <option value="all">جميع الفصائل</option>
+                                        <option value="A+">A+</option>
+                                        <option value="A-">A-</option>
+                                        <option value="B+">B+</option>
+                                        <option value="B-">B-</option>
+                                        <option value="AB+">AB+</option>
+                                        <option value="AB-">AB-</option>
+                                        <option value="O+">O+</option>
+                                        <option value="O-">O-</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>الجنس:</label>
+                                    <select id="genderFilter">
+                                        <option value="all">الكل</option>
+                                        <option value="male">ذكر</option>
+                                        <option value="female">أنثى</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>من تاريخ:</label>
+                                    <input type="date" id="dateFromFilter">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>إلى تاريخ:</label>
+                                    <input type="date" id="dateToFilter">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>المدينة:</label>
+                                    <input type="text" id="cityFilter" placeholder="اسم المدينة">
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button class="btn btn-secondary" id="resetAdvancedSearch">
+                                    <i class="fas fa-redo"></i>
+                                    إعادة تعيين
+                                </button>
+                                <button class="btn btn-primary" id="applyAdvancedSearch">
+                                    <i class="fas fa-filter"></i>
+                                    تطبيق البحث
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- محتوى المرضى -->
+                    <div class="patients-content">
+                        <!-- عرض البطاقات -->
+                        <div class="cards-view active" id="cardsView">
+                            <div class="patients-grid" id="patientsGrid">
+                                <!-- سيتم ملء البطاقات ديناميكياً -->
+                            </div>
+                        </div>
+
+                        <!-- عرض الجدول -->
+                        <div class="table-view" id="tableView">
+                            <div class="patients-table-container">
+                                <table class="patients-table">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                <input type="checkbox" id="selectAllPatients">
+                                            </th>
+                                            <th>كود المريض</th>
+                                            <th>الاسم</th>
+                                            <th>العمر</th>
+                                            <th>الهاتف</th>
+                                            <th>فصيلة الدم</th>
+                                            <th>آخر زيارة</th>
+                                            <th>عدد الزيارات</th>
+                                            <th>الحالة</th>
+                                            <th>الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="patientsTableBody">
+                                        <!-- سيتم ملء الجدول ديناميكياً -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="table-footer">
+                                <div class="table-info">
+                                    عرض <span id="currentPatientsPageSize">10</span> من أصل <span id="totalPatientsCount">0</span> مريض
+                                </div>
+                                <div class="pagination" id="patientsPagination">
+                                    <!-- سيتم ملء الترقيم ديناميكياً -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- خيارات العرض -->
+                        <div class="view-options-bar">
+                            <div class="view-toggle">
+                                <button class="view-option-btn active" data-view="cards">
+                                    <i class="fas fa-th"></i>
+                                    بطاقات
+                                </button>
+                                <button class="view-option-btn" data-view="table">
+                                    <i class="fas fa-list"></i>
+                                    جدول
+                                </button>
+                            </div>
+                            
+                            <div class="display-options">
+                                <span>عرض:</span>
+                                <select id="pageSizeSelect" class="page-size-select">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- قسم السجلات الطبية -->
+                <section id="medicalRecordsSection" class="page-section">
+                    <div class="section-header">
+                        <h2>السجلات الطبية</h2>
+                        <div class="section-actions">
+                            <button class="btn btn-primary" id="addMedicalRecordBtn">
+                                <i class="fas fa-plus"></i>
+                                سجل طبي جديد
+                            </button>
+                            <button class="btn btn-secondary" id="exportMedicalRecordsBtn">
+                                <i class="fas fa-download"></i>
+                                تصدير السجلات
+                            </button>
+                            <button class="btn btn-secondary" id="printRecordsBtn">
+                                <i class="fas fa-print"></i>
+                                طباعة
+                            </button>
+                            <button class="btn btn-secondary" id="bulkRecordsActionsBtn">
+                                <i class="fas fa-cog"></i>
+                                إجراءات جماعية
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- شريط الإحصائيات السريعة -->
+                    <div class="quick-stats">
+                        <div class="quick-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-file-medical"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="totalMedicalRecords">0</span>
+                                <span class="stat-label">إجمالي السجلات</span>
+                            </div>
+                        </div>
+                        <div class="quick-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-stethoscope"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="recordsToday">0</span>
+                                <span class="stat-label">سجلات اليوم</span>
+                            </div>
+                        </div>
+                        <div class="quick-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="followUpRecords">0</span>
+                                <span class="stat-label">حاجة متابعة</span>
+                            </div>
+                        </div>
+                        <div class="quick-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="criticalRecords">0</span>
+                                <span class="stat-label">حالات حرجة</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- أدوات البحث والتصفية -->
+                    <div class="medical-records-controls">
+                        <div class="search-section">
+                            <div class="search-box records-search">
+                                <input type="text" id="medicalRecordsSearch" placeholder="ابحث باسم المريض، التشخيص، الملاحظات...">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <button class="btn btn-outline" id="advancedRecordsSearchToggle">
+                                <i class="fas fa-sliders-h"></i>
+                                بحث متقدم
+                            </button>
+                        </div>
+                        
+                        <div class="filter-section">
+                            <div class="filter-group">
+                                <label>نوع السجل:</label>
+                                <select id="recordTypeFilter" class="filter-select">
+                                    <option value="all">جميع الأنواع</option>
+                                    <option value="consultation">كشف</option>
+                                    <option value="followup">متابعة</option>
+                                    <option value="emergency">طوارئ</option>
+                                    <option value="surgery">عملية</option>
+                                    <option value="lab">مختبر</option>
+                                    <option value="radiology">أشعة</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label>الحالة:</label>
+                                <select id="recordStatusFilter" class="filter-select">
+                                    <option value="all">جميع الحالات</option>
+                                    <option value="active">نشط</option>
+                                    <option value="resolved">منتهي</option>
+                                    <option value="critical">حرج</option>
+                                    <option value="followup">متابعة</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label>الطبيب:</label>
+                                <select id="recordDoctorFilter" class="filter-select">
+                                    <option value="all">جميع الأطباء</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label>فرز حسب:</label>
+                                <select id="recordsSortFilter" class="filter-select">
+                                    <option value="newest">الأحدث</option>
+                                    <option value="oldest">الأقدم</option>
+                                    <option value="patient">اسم المريض</option>
+                                    <option value="critical">الأكثر حرجة</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- البحث المتقدم -->
+                    <div class="advanced-records-search" id="advancedRecordsSearchPanel" style="display: none;">
+                        <div class="advanced-search-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>من تاريخ:</label>
+                                    <input type="date" id="recordsDateFromFilter">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>إلى تاريخ:</label>
+                                    <input type="date" id="recordsDateToFilter">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>مستوى الخطورة:</label>
+                                    <select id="severityFilter">
+                                        <option value="all">جميع المستويات</option>
+                                        <option value="low">منخفض</option>
+                                        <option value="medium">متوسط</option>
+                                        <option value="high">عالي</option>
+                                        <option value="critical">حرج</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>التشخيص:</label>
+                                    <input type="text" id="diagnosisFilter" placeholder="ابحث في التشخيص...">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>الأدوية:</label>
+                                    <input type="text" id="medicationFilter" placeholder="ابحث في الأدوية...">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>نوع الزيارة:</label>
+                                    <select id="visitTypeFilter">
+                                        <option value="all">جميع الزيارات</option>
+                                        <option value="first">أول زيارة</option>
+                                        <option value="followup">متابعة</option>
+                                        <option value="emergency">طوارئ</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button class="btn btn-secondary" id="resetRecordsSearch">
+                                    <i class="fas fa-redo"></i>
+                                    إعادة تعيين
+                                </button>
+                                <button class="btn btn-primary" id="applyRecordsSearch">
+                                    <i class="fas fa-filter"></i>
+                                    تطبيق البحث
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- محتوى السجلات الطبية -->
+                    <div class="medical-records-content">
+                        <!-- عرض البطاقات -->
+                        <div class="records-cards-view active" id="recordsCardsView">
+                            <div class="medical-records-grid" id="medicalRecordsGrid">
+                                <!-- سيتم ملء البطاقات ديناميكياً -->
+                            </div>
+                        </div>
+
+                        <!-- عرض الجدول -->
+                        <div class="records-table-view" id="recordsTableView">
+                            <div class="medical-records-table-container">
+                                <table class="medical-records-table">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                <input type="checkbox" id="selectAllRecords">
+                                            </th>
+                                            <th>رقم السجل</th>
+                                            <th>المريض</th>
+                                            <th>التاريخ</th>
+                                            <th>نوع السجل</th>
+                                            <th>التشخيص</th>
+                                            <th>الطبيب</th>
+                                            <th>الحالة</th>
+                                            <th>مستوى الخطورة</th>
+                                            <th>الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="medicalRecordsTableBody">
+                                        <!-- سيتم ملء الجدول ديناميكياً -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="table-footer">
+                                <div class="table-info">
+                                    عرض <span id="currentRecordsPageSize">10</span> من أصل <span id="totalRecordsCount">0</span> سجل
+                                </div>
+                                <div class="pagination" id="medicalRecordsPagination">
+                                    <!-- سيتم ملء الترقيم ديناميكياً -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- عرض التفاصيل -->
+                        <div class="record-details-view" id="recordDetailsView" style="display: none;">
+                            <div class="record-details-container" id="recordDetailsContainer">
+                                <!-- سيتم ملء تفاصيل السجل ديناميكياً -->
+                            </div>
+                        </div>
+
+                        <!-- خيارات العرض -->
+                        <div class="records-view-options-bar">
+                            <div class="view-toggle">
+                                <button class="view-option-btn active" data-view="cards">
+                                    <i class="fas fa-th"></i>
+                                    بطاقات
+                                </button>
+                                <button class="view-option-btn" data-view="table">
+                                    <i class="fas fa-list"></i>
+                                    جدول
+                                </button>
+                                <button class="view-option-btn" data-view="details">
+                                    <i class="fas fa-file-alt"></i>
+                                    تفاصيل
+                                </button>
+                            </div>
+                            
+                            <div class="display-options">
+                                <span>عرض:</span>
+                                <select id="recordsPageSizeSelect" class="page-size-select">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                
+                                <button class="btn btn-outline btn-sm" id="toggleCompactView">
+                                    <i class="fas fa-compress"></i>
+                                    عرض مدمج
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- أقسام أخرى سيتم إضافتها -->
+                <section id="prescriptionsSection" class="page-section">
+                    <!-- محتوى الوصفات الطبية -->
+                </section>
+
+                <section id="invoicesSection" class="page-section">
+                    <!-- محتوى الفواتير -->
+                </section>
+
+                <section id="reportsSection" class="page-section">
+                    <!-- محتوى التقارير -->
+                </section>
+
+                <section id="inventorySection" class="page-section">
+                    <!-- محتوى المخزون -->
+                </section>
+
+                <section id="labSection" class="page-section">
+                    <!-- محتوى المختبر -->
+                </section>
+
+                <section id="radiologySection" class="page-section">
+                    <!-- محتوى الأشعة -->
+                </section>
+
+                <section id="settingsSection" class="page-section">
+                    <!-- محتوى الإعدادات -->
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- النوافذ المنبثقة -->
+    <!-- نافذة إضافة/تحرير موعد -->
+    <div id="addAppointmentModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="appointmentModalTitle">إضافة موعد جديد</h3>
+                <button class="close-modal" onclick="dashboard.closeAppointmentModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- سيتم ملء النموذج ديناميكياً -->
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تأكيد الحذف -->
+    <div id="confirmDeleteModal" class="modal">
+        <div class="modal-content small">
+            <div class="modal-header">
+                <h3>تأكيد الحذف</h3>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من رغبتك في حذف الموعد المحدد؟</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="dashboard.closeDeleteModal()">إلغاء</button>
+                <button class="btn btn-danger" id="confirmDeleteBtn">حذف</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة/تحرير مريض -->
+    <div id="addPatientModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="patientModalTitle">إضافة مريض جديد</h3>
+                <button class="close-modal" onclick="dashboard.closePatientModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- سيتم ملء النموذج ديناميكياً -->
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة/تحرير سجل طبي -->
+    <div id="addMedicalRecordModal" class="modal">
+        <div class="modal-content x-large">
+            <div class="modal-header">
+                <h3 id="medicalRecordModalTitle">سجل طبي جديد</h3>
+                <button class="close-modal" onclick="dashboard.closeMedicalRecordModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- سيتم ملء النموذج ديناميكياً -->
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تأكيد تسجيل الخروج -->
+    <div id="logoutConfirmModal" class="modal">
+        <div class="modal-content small">
+            <div class="modal-header">
+                <h3>تأكيد تسجيل الخروج</h3>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من رغبتك في تسجيل الخروج؟</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelLogout">إلغاء</button>
+                <button class="btn btn-danger" id="confirmLogout">تسجيل الخروج</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- زر الإضافة السريعة -->
+    <button class="quick-add-btn" onclick="dashboard.showAddMedicalRecordModal()" title="إضافة سجل طبي جديد">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="dashboard.js"></script>
+</body>
+</html>
