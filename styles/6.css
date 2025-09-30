@@ -1,1 +1,500 @@
+/* شريط الإحصائيات السريعة */
+.quick-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
 
+.quick-stat {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-right: 4px solid var(--primary-color);
+}
+
+.quick-stat .stat-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--primary-color);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+}
+
+.quick-stat .stat-value {
+    display: block;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--dark-color);
+    margin-bottom: 5px;
+}
+
+.quick-stat .stat-label {
+    font-size: 14px;
+    color: var(--gray-color);
+}
+
+/* أدوات التحكم في المواعيد */
+.appointments-controls {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.date-navigation {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.current-period {
+    font-weight: 600;
+    color: var(--dark-color);
+    min-width: 150px;
+    text-align: center;
+}
+
+.view-options {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.view-buttons {
+    display: flex;
+    background: var(--light-color);
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.view-btn {
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.view-btn.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.filter-options {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-family: 'Tajawal', sans-serif;
+    background: white;
+}
+
+/* عرض التقويم */
+.calendar-view {
+    display: none;
+}
+
+.calendar-view.active {
+    display: block;
+}
+
+.calendar-header {
+    background: white;
+    padding: 20px;
+    border-radius: 10px 10px 0 0;
+    box-shadow: var(--shadow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1px;
+}
+
+.calendar-nav {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.nav-btn {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.nav-btn:hover {
+    background: var(--light-color);
+}
+
+#currentDate {
+    margin: 0;
+    font-size: 18px;
+    color: var(--dark-color);
+    min-width: 200px;
+    text-align: center;
+}
+
+.time-slots {
+    display: flex;
+    background: white;
+    border-radius: 0 0 10px 10px;
+    box-shadow: var(--shadow);
+    min-height: 600px;
+}
+
+.time-column {
+    width: 100px;
+    border-left: 1px solid var(--border-color);
+}
+
+.time-header {
+    padding: 15px;
+    background: var(--light-color);
+    font-weight: 600;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.time-slots-list {
+    padding: 0;
+}
+
+.time-slot {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 14px;
+    color: var(--gray-color);
+}
+
+.appointments-column {
+    flex: 1;
+}
+
+.day-header {
+    padding: 15px;
+    background: var(--light-color);
+    font-weight: 600;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.appointments-slots {
+    position: relative;
+}
+
+.appointment-slot {
+    height: 60px;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+}
+
+.appointment-event {
+    position: absolute;
+    left: 5px;
+    right: 5px;
+    background: var(--primary-color);
+    color: white;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+    overflow: hidden;
+}
+
+.appointment-event:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.appointment-event.scheduled { background: #2196F3; }
+.appointment-event.confirmed { background: #4CAF50; }
+.appointment-event.completed { background: #9C27B0; }
+.appointment-event.cancelled { background: #F44336; }
+
+.appointment-event.conflict {
+    background: #FF9800;
+    animation: pulse 2s infinite;
+}
+
+.appointment-event .event-time {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.appointment-event .event-patient {
+    font-size: 11px;
+    opacity: 0.9;
+}
+
+/* عرض القائمة */
+.list-view {
+    display: none;
+}
+
+.list-view.active {
+    display: block;
+}
+
+.appointments-table-container {
+    background: white;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.appointments-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.appointments-table th {
+    background: var(--light-color);
+    padding: 15px 12px;
+    text-align: right;
+    font-weight: 600;
+    color: var(--dark-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.appointments-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.appointments-table tbody tr {
+    transition: var(--transition);
+}
+
+.appointments-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.appointments-table input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+}
+
+/* حالات المواعيد في الجدول */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-scheduled { background: #E3F2FD; color: #1976D2; }
+.status-confirmed { background: #E8F5E8; color: #388E3C; }
+.status-completed { background: #F3E5F5; color: #7B1FA2; }
+.status-cancelled { background: #FFEBEE; color: #D32F2F; }
+
+/* أزرار الإجراءات */
+.action-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    font-size: 12px;
+}
+
+.btn-edit { background: #E3F2FD; color: #1976D2; }
+.btn-edit:hover { background: #1976D2; color: white; }
+
+.btn-delete { background: #FFEBEE; color: #D32F2F; }
+.btn-delete:hover { background: #D32F2F; color: white; }
+
+.btn-complete { background: #E8F5E8; color: #388E3C; }
+.btn-complete:hover { background: #388E3C; color: white; }
+
+.btn-cancel { background: #FFF3E0; color: #F57C00; }
+.btn-cancel:hover { background: #F57C00; color: white; }
+
+/* تذييل الجدول */
+.table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+}
+
+.table-info {
+    color: var(--gray-color);
+    font-size: 14px;
+}
+
+.pagination {
+    display: flex;
+    gap: 5px;
+}
+
+.page-btn {
+    width: 35px;
+    height: 35px;
+    border: 1px solid var(--border-color);
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    font-family: 'Tajawal', sans-serif;
+}
+
+.page-btn:hover {
+    background: var(--light-color);
+}
+
+.page-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* النوافذ المنبثقة للمواعيد */
+.appointment-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group-full {
+    grid-column: 1 / -1;
+}
+
+.form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+/* زر الإخراج */
+.btn-outline {
+    background: white;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.btn-outline:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* حالة عدم وجود بيانات */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--gray-color);
+}
+
+.empty-state i {
+    font-size: 48px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 16px;
+}
+
+/* التصميم المتجاوب */
+@media (max-width: 768px) {
+    .appointments-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .date-navigation {
+        justify-content: center;
+    }
+    
+    .view-options {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .appointment-form {
+        grid-template-columns: 1fr;
+    }
+    
+    .table-footer {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .appointments-table {
+        font-size: 12px;
+    }
+    
+    .appointments-table th,
+    .appointments-table td {
+        padding: 8px 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .quick-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .view-buttons {
+        flex-wrap: wrap;
+    }
+    
+    .filter-options {
+        flex-direction: column;
+    }
+}
