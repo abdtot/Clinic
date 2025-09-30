@@ -1,1 +1,655 @@
+/* أدوات التحكم في السجلات الطبية */
+.medical-records-controls {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    margin-bottom: 25px;
+}
 
+.records-search {
+    flex: 1;
+    position: relative;
+}
+
+.records-search input {
+    width: 100%;
+    padding: 12px 45px 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: 'Tajawal', sans-serif;
+    transition: var(--transition);
+}
+
+.records-search input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+}
+
+/* البحث المتقدم للسجلات */
+.advanced-records-search {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    margin-bottom: 25px;
+    border: 1px solid var(--border-color);
+}
+
+/* شبكة السجلات الطبية */
+.medical-records-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.medical-record-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: var(--transition);
+    border: 1px solid var(--border-color);
+    position: relative;
+}
+
+.medical-record-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.medical-record-card.critical {
+    border-left: 4px solid #f44336;
+}
+
+.medical-record-card.urgent {
+    border-left: 4px solid #ff9800;
+}
+
+.medical-record-card.followup {
+    border-left: 4px solid #2196f3;
+}
+
+.medical-record-card.resolved {
+    border-left: 4px solid #4caf50;
+}
+
+.record-card-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+}
+
+.record-patient-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.record-patient-avatar {
+    width: 50px;
+    height: 50px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.record-patient-details h4 {
+    margin: 0 0 4px 0;
+    color: var(--dark-color);
+}
+
+.record-patient-details .patient-meta {
+    font-size: 12px;
+    color: var(--gray-color);
+}
+
+.record-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--gray-color);
+}
+
+.record-type-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.badge-consultation { background: #e3f2fd; color: #1976d2; }
+.badge-followup { background: #fff3e0; color: #f57c00; }
+.badge-emergency { background: #ffebee; color: #d32f2f; }
+.badge-surgery { background: #f3e5f5; color: #7b1fa2; }
+.badge-lab { background: #e8f5e8; color: #388e3c; }
+.badge-radiology { background: #e0f2f1; color: #00796b; }
+
+.record-card-body {
+    padding: 20px;
+}
+
+.record-diagnosis {
+    margin-bottom: 15px;
+}
+
+.diagnosis-title {
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.diagnosis-text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--gray-color);
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 6px;
+    border-right: 3px solid var(--primary-color);
+}
+
+.record-treatment {
+    margin-bottom: 15px;
+}
+
+.treatment-title {
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.treatment-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.treatment-item {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.treatment-item:last-child {
+    border-bottom: none;
+}
+
+.medication-name {
+    font-weight: 500;
+    color: var(--dark-color);
+}
+
+.medication-dosage {
+    font-size: 12px;
+    color: var(--gray-color);
+}
+
+.record-vitals {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.vital-item {
+    text-align: center;
+}
+
+.vital-value {
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 4px;
+}
+
+.vital-label {
+    font-size: 11px;
+    color: var(--gray-color);
+    text-transform: uppercase;
+}
+
+.record-card-footer {
+    padding: 15px 20px;
+    background: #f8f9fa;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.record-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.status-active { background: #4caf50; }
+.status-resolved { background: #9e9e9e; }
+.status-critical { background: #f44336; animation: pulse 2s infinite; }
+.status-followup { background: #2196f3; }
+
+.record-actions {
+    display: flex;
+    gap: 5px;
+}
+
+/* عرض الجدول للسجلات */
+.records-table-view {
+    display: none;
+}
+
+.records-table-view.active {
+    display: block;
+}
+
+.medical-records-table-container {
+    background: white;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.medical-records-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.medical-records-table th {
+    background: var(--light-color);
+    padding: 15px 12px;
+    text-align: right;
+    font-weight: 600;
+    color: var(--dark-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.medical-records-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.medical-records-table tbody tr {
+    transition: var(--transition);
+}
+
+.medical-records-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.medical-records-table tbody tr.critical {
+    background: #ffebee;
+}
+
+.medical-records-table tbody tr.urgent {
+    background: #fff3e0;
+}
+
+.medical-records-table tbody tr.followup {
+    background: #e3f2fd;
+}
+
+/* شارات الخطورة */
+.severity-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    display: inline-block;
+    min-width: 60px;
+}
+
+.severity-low { background: #e8f5e8; color: #388e3c; }
+.severity-medium { background: #fff3e0; color: #f57c00; }
+.severity-high { background: #ffe0e0; color: #d32f2f; }
+.severity-critical { 
+    background: #d32f2f; 
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+/* عرض التفاصيل */
+.record-details-view {
+    background: white;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.record-details-container {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.record-details-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    padding: 30px;
+    position: relative;
+}
+
+.record-details-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.record-main-info h2 {
+    margin: 0 0 10px 0;
+    font-size: 24px;
+}
+
+.record-meta-info {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.record-actions-bar {
+    display: flex;
+    gap: 10px;
+}
+
+.record-details-body {
+    padding: 30px;
+}
+
+.details-section {
+    margin-bottom: 30px;
+}
+
+.details-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: var(--gray-color);
+    font-size: 14px;
+}
+
+.detail-value {
+    color: var(--dark-color);
+    font-size: 15px;
+}
+
+/* شريط خيارات العرض للسجلات */
+.records-view-options-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+}
+
+/* نموذج السجل الطبي */
+.medical-record-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.medical-record-form .form-section {
+    grid-column: 1 / -1;
+    margin-bottom: 25px;
+}
+
+.medical-record-form .form-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.vitals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.vital-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.vital-input-group label {
+    font-size: 12px;
+    color: var(--gray-color);
+    font-weight: 500;
+}
+
+.vital-input {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.vital-input input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    text-align: center;
+}
+
+.vital-unit {
+    font-size: 12px;
+    color: var(--gray-color);
+    min-width: 30px;
+}
+
+/* زر الإضافة السريعة */
+.quick-add-btn {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    width: 60px;
+    height: 60px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(44, 90, 160, 0.3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: var(--transition);
+    z-index: 1000;
+}
+
+.quick-add-btn:hover {
+    transform: scale(1.1);
+    background: var(--primary-dark);
+}
+
+/* التصميم المتجاوب */
+@media (max-width: 1200px) {
+    .medical-records-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .medical-records-controls {
+        padding: 15px;
+    }
+    
+    .search-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-section {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .filter-group {
+        justify-content: space-between;
+    }
+    
+    .medical-record-form {
+        grid-template-columns: 1fr;
+    }
+    
+    .records-view-options-bar {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .medical-records-table {
+        font-size: 12px;
+    }
+    
+    .medical-records-table th,
+    .medical-records-table td {
+        padding: 8px 4px;
+    }
+    
+    .record-details-header {
+        padding: 20px;
+    }
+    
+    .record-details-title {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .record-actions-bar {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .medical-records-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .vitals-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .record-meta-info {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .quick-add-btn {
+        bottom: 20px;
+        left: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 18px;
+    }
+}
+
+/* تأثير النبض للتنبيهات */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* تلميحات الأدوية */
+.medication-tooltip {
+    position: relative;
+    cursor: help;
+}
+
+.medication-tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+}
+
+.medication-tooltip:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #333;
+    margin-bottom: -5px;
+}
