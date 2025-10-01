@@ -3755,3 +3755,1297 @@ class Dashboard {
 window.dashboard = new Dashboard();
 
 
+class Dashboard {
+    // ... الكود الحالي ...
+
+    // تحميل بيانات الفواتير
+    async loadInvoicesData() {
+        try {
+            console.log('جاري تحميل بيانات الفواتير...');
+            
+            // تحميل جميع الفواتير
+            const invoices = await storeDB.getAll('invoices');
+            const invoiceItems = await storeDB.getAll('invoiceItems');
+            const patients = await storeDB.getAll('patients');
+            const appointments = await storeDB.getAll('appointments');
+            const medicalServices = await storeDB.getAll('medicalServices');
+            
+            // تحديث الإحصائيات
+            this.updateInvoicesStats(invoices);
+            
+            // تحديث ملخص الإيرادات
+            this.updateRevenueSummary(invoices);
+            
+            // تحديث العروض
+            this.renderInvoicesCards(invoices, invoiceItems, patients, appointments, medicalServices);
+            this.renderInvoicesTable(invoices, invoiceItems, patients, appointments, medicalServices);
+            
+            console.log('تم تحميل بيانات الفواتير بنجاح');
+            
+        } catch (error) {
+            console.error('خطأ في تحميل بيانات الفواتير:', error);
+            this.showError('فشل في تحميل بيانات الفواتير');
+        }
+    }
+
+    // تحديث إحصائيات الفواتير
+    updateInvoicesStats(invoices) {
+        const now = new Date();
+        
+        const totalInvoices = invoices.length;
+        const pendingInvoices = invoices.filter(inv => inv.status === 'pending').length;
+        const overdueInvoices = invoices.filter(inv => 
+            inv.status === 'pending' && 
+            inv.dueDate && 
+            new Date(inv.dueDate) < now
+        ).length;
+        
+        const totalRevenue = invoices
+            .filter(inv => inv.status === 'paid')
+            .reduce((sum, inv) => sum + (inv.totalAmount || 0), 0);
+
+        document.getElementById('totalInvoices').textContent = totalInvoices.toLocaleString();
+        document.getElementById('pendingInvoicesCount').textContent = pendingInvoices.toLocaleString();
+        document.getElementById('overdueInvoices').textContent = overdueInvoices.toLocaleString();
+        document.getElementById('totalRevenue').textContent = totalRevenue.toLocaleString('ar-SA', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    // تحديث ملخص الإيرادات
+    updateRevenueSummary(invoices) {
+        const period = document.getElementById('revenuePeriodSelect').value;
+        const now = new Date();
+        let startDate, endDate;
+        
+        // تحديد الفترة الزمنية
+        switch (period) {
+            case 'today':
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                break;
+            case 'week':
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+                endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() + 7);
+                break;
+            case 'month':
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                break;
+            case 'quarter':
+                const quarter = Math.floor(now.getMonth() / 3);
+                startDate = new Date(now.getFullYear(), quarter * 3, 1);
+                endDate = new Date(now.getFullYear(), (quarter + 1) * 3, 0);
+                break;
+            case 'year':
+                startDate = new Date(now.getFullYear(), 0, 1);
+                endDate = new Date(now.getFullYear(), 11, 31);
+                break;
+            default:
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        }
+        
+        // تصفية الفواتير حسب الفترة
+        const periodInvoices = invoices.filter(inv => {
+            if (inv.status !== 'paid') return false;
+            const invoiceDate = new Date(inv.invoiceDate || inv.createdAt);
+            return invoiceDate >= startDate && invoiceDate <= endDate;
+        });
+        
+        // حساب المجاميع
+        const totalAmount = periodInvoices.reduce((sum, inv) => sum + (inv.subtotal || 0), 0);
+        const totalTax = periodInvoices.reduce((sum, inv) => sum + (inv.taxAmount || 0), 0);
+        const totalDiscount = periodInvoices.reduce((sum, inv) => sum + (inv.discountAmount || 0), 0);
+        const netRevenue = totalAmount + totalTax - totalDiscount;
+        
+        // تحديث الواجهة
+        document.getElementById('totalRevenueAmount').textContent = totalAmount.toLocaleString('ar-SA', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        document.getElementById('totalTaxAmount').textContent = totalTax.toLocaleString('ar-SA', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        document.getElementById('totalDiscountAmount').textContent = totalDiscount.toLocaleString('ar-SA', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        document.getElementById('netRevenueAmount').textContent = netRevenue.toLocaleString('ar-SA', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        
+        // تحديث طرق الدفع
+        this.updatePaymentMethodsChart(periodInvoices);
+    }
+
+    // تحديث مخطط طرق الدفع
+    updatePaymentMethodsChart(invoices) {
+        const paymentMethods = {};
+        
+        invoices.forEach(inv => {
+            const method = inv.paymentMethod || 'cash';
+            const amount = inv.totalAmount || 0;
+            
+            if (!paymentMethods[method]) {
+                paymentMethods[method] = 0;
+            }
+            paymentMethods[method] += amount;
+        });
+        
+        const totalAmount = Object.values(paymentMethods).reduce((sum, amount) => sum + amount, 0);
+        const container = document.getElementById('paymentMethodsChart');
+        
+        const paymentMethodsHTML = Object.entries(paymentMethods).map(([method, amount]) => {
+            const percentage = totalAmount > 0 ? (amount / totalAmount * 100).toFixed(1) : 0;
+            const methodText = this.getPaymentMethodText(method);
+            const methodIcon = this.getPaymentMethodIcon(method);
+            
+            return `
+                <div class="payment-method-item">
+                    <div class="method-info">
+                        <div class="method-icon">
+                            <i class="${methodIcon}"></i>
+                        </div>
+                        <span class="method-name">${methodText}</span>
+                    </div>
+                    <div class="method-amounts">
+                        <span class="method-amount">${amount.toLocaleString('ar-SA', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        })}</span>
+                        <span class="method-percentage">${percentage}%</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        container.innerHTML = paymentMethodsHTML || '<p class="text-muted text-center">لا توجد بيانات</p>';
+    }
+
+    // دوال مساعدة لطرق الدفع
+    getPaymentMethodText(method) {
+        const methodMap = {
+            'cash': 'نقدي',
+            'card': 'بطاقة ائتمان',
+            'bank': 'تحويل بنكي',
+            'insurance': 'تأمين',
+            'online': 'دفع إلكتروني'
+        };
+        return methodMap[method] || method;
+    }
+
+    getPaymentMethodIcon(method) {
+        const iconMap = {
+            'cash': 'fas fa-money-bill-wave',
+            'card': 'fas fa-credit-card',
+            'bank': 'fas fa-university',
+            'insurance': 'fas fa-shield-alt',
+            'online': 'fas fa-globe'
+        };
+        return iconMap[method] || 'fas fa-money-bill-wave';
+    }
+
+    // عرض الفواتير في البطاقات
+    renderInvoicesCards(invoices, invoiceItems, patients, appointments, medicalServices) {
+        const invoicesGrid = document.getElementById('invoicesGrid');
+        if (!invoicesGrid) return;
+        
+        if (invoices.length === 0) {
+            invoicesGrid.innerHTML = `
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <p>لا توجد فواتير</p>
+                    <button class="btn btn-primary" onclick="dashboard.showAddInvoiceModal()">
+                        <i class="fas fa-plus"></i>
+                        إنشاء أول فاتورة
+                    </button>
+                </div>
+            `;
+            return;
+        }
+        
+        // ترتيب الفواتير من الأحدث إلى الأقدم
+        const sortedInvoices = invoices.sort((a, b) => 
+            new Date(b.invoiceDate || b.createdAt) - new Date(a.invoiceDate || a.createdAt)
+        );
+        
+        invoicesGrid.innerHTML = sortedInvoices.map(invoice => {
+            const patient = patients.find(p => p.id === invoice.patientId);
+            const appointment = appointments.find(a => a.id === invoice.appointmentId);
+            
+            // الحصول على عناصر الفاتورة
+            const items = invoiceItems.filter(item => item.invoiceId === invoice.id);
+            const invoiceServices = items.map(item => {
+                const service = medicalServices.find(s => s.id === item.serviceId);
+                return {
+                    ...item,
+                    service: service || { name: 'خدمة غير معروفة', price: 0 }
+                };
+            });
+            
+            const isOverdue = this.isInvoiceOverdue(invoice);
+            const statusClass = this.getInvoiceStatusClass(invoice);
+            
+            return `
+                <div class="invoice-card ${statusClass}">
+                    <div class="invoice-header">
+                        <div class="invoice-patient-info">
+                            <div class="invoice-patient-avatar">
+                                ${this.getPatientInitials(patient?.name)}
+                            </div>
+                            <div class="invoice-patient-details">
+                                <h4>${patient?.name || 'مريض'}</h4>
+                                <div class="patient-meta">
+                                    ${patient?.phone || 'لا يوجد هاتف'} • ${this.formatDate(invoice.invoiceDate || invoice.createdAt)}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="invoice-meta">
+                            <span class="invoice-number">${invoice.invoiceNumber || `INV-${invoice.id.toString().padStart(6, '0')}`}</span>
+                            <span class="invoice-type-badge badge-${invoice.status || 'draft'}">
+                                ${this.getInvoiceStatusText(invoice.status)}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="invoice-body">
+                        ${invoiceServices.length > 0 ? `
+                            <div class="invoice-items">
+                                ${invoiceServices.slice(0, 3).map(item => `
+                                    <div class="invoice-item">
+                                        <span class="item-name">${item.service.name}</span>
+                                        <span class="item-amount">${(item.price * item.quantity).toLocaleString('ar-SA', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        })}</span>
+                                    </div>
+                                `).join('')}
+                                ${invoiceServices.length > 3 ? `
+                                    <div class="invoice-item text-center">
+                                        <span class="text-muted">+ ${invoiceServices.length - 3} خدمة إضافية</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        ` : '<p class="text-muted text-center">لا توجد خدمات</p>'}
+                        
+                        <div class="invoice-totals">
+                            <div class="total-row subtotal">
+                                <span class="total-label">المبلغ الإجمالي</span>
+                                <span class="total-value">${(invoice.subtotal || 0).toLocaleString('ar-SA', {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                })}</span>
+                            </div>
+                            ${invoice.taxAmount ? `
+                                <div class="total-row tax">
+                                    <span class="total-label">الضريبة</span>
+                                    <span class="total-value">${invoice.taxAmount.toLocaleString('ar-SA', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    })}</span>
+                                </div>
+                            ` : ''}
+                            ${invoice.discountAmount ? `
+                                <div class="total-row discount">
+                                    <span class="total-label">الخصم</span>
+                                    <span class="total-value">-${invoice.discountAmount.toLocaleString('ar-SA', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    })}</span>
+                                </div>
+                            ` : ''}
+                            <div class="total-row grand-total">
+                                <span class="total-label">المبلغ الإجمالي</span>
+                                <span class="total-value">${(invoice.totalAmount || 0).toLocaleString('ar-SA', {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                })}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="invoice-payment-info">
+                            <div class="payment-info-item">
+                                <span class="payment-info-label">طريقة الدفع</span>
+                                <span class="payment-info-value">${this.getPaymentMethodText(invoice.paymentMethod)}</span>
+                            </div>
+                            <div class="payment-info-item">
+                                <span class="payment-info-label">تاريخ الاستحقاق</span>
+                                <span class="payment-info-value ${isOverdue ? 'text-danger' : ''}">
+                                    ${invoice.dueDate ? this.formatDate(invoice.dueDate) : 'غير محدد'}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        ${isOverdue ? `
+                            <div class="overdue-notice">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                فاتورة متأخرة - يرجى المتابعة
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="invoice-footer">
+                        <div class="invoice-status">
+                            <span class="status-indicator status-${invoice.status || 'draft'}"></span>
+                            <span>${this.getInvoiceStatusText(invoice.status)}</span>
+                            ${isOverdue ? `
+                                <span class="due-date-warning warning-danger">
+                                    متأخرة
+                                </span>
+                            ` : invoice.dueDate && this.isInvoiceDueSoon(invoice) ? `
+                                <span class="due-date-warning warning-warning">
+                                    تستحق قريباً
+                                </span>
+                            ` : ''}
+                        </div>
+                        <div class="invoice-actions">
+                            <button class="action-btn-sm btn-view" onclick="dashboard.viewInvoiceDetails(${invoice.id})" title="عرض التفاصيل">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn-sm btn-print" onclick="dashboard.printInvoice(${invoice.id})" title="طباعة">
+                                <i class="fas fa-print"></i>
+                            </button>
+                            ${invoice.status === 'pending' ? `
+                                <button class="action-btn-sm btn-pay" onclick="dashboard.markInvoiceAsPaid(${invoice.id})" title="تسديد">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            ` : ''}
+                            <button class="action-btn-sm btn-edit" onclick="dashboard.editInvoice(${invoice.id})" title="تعديل">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // عرض الفواتير في الجدول
+    renderInvoicesTable(invoices, invoiceItems, patients, appointments, medicalServices) {
+        const tableBody = document.getElementById('invoicesTableBody');
+        if (!tableBody) return;
+        
+        if (invoices.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="empty-state">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <p>لا توجد فواتير</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        // ترتيب الفواتير من الأحدث إلى الأقدم
+        const sortedInvoices = invoices.sort((a, b) => 
+            new Date(b.invoiceDate || b.createdAt) - new Date(a.invoiceDate || a.createdAt)
+        );
+        
+        tableBody.innerHTML = sortedInvoices.map(invoice => {
+            const patient = patients.find(p => p.id === invoice.patientId);
+            const isOverdue = this.isInvoiceOverdue(invoice);
+            const statusClass = this.getInvoiceStatusClass(invoice);
+            const amountClass = this.getInvoiceAmountClass(invoice);
+            
+            return `
+                <tr class="${statusClass}">
+                    <td>
+                        <input type="checkbox" class="invoice-checkbox" value="${invoice.id}">
+                    </td>
+                    <td>
+                        <strong>${invoice.invoiceNumber || `INV-${invoice.id.toString().padStart(6, '0')}`}</strong>
+                    </td>
+                    <td>
+                        <div class="patient-mini-card">
+                            <div class="mini-avatar">
+                                ${this.getPatientInitials(patient?.name)}
+                            </div>
+                            <div class="mini-info">
+                                <div class="mini-name">${patient?.name || 'مريض'}</div>
+                                <div class="mini-contact">${patient?.phone || 'لا يوجد هاتف'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${this.formatDate(invoice.invoiceDate || invoice.createdAt)}</td>
+                    <td class="amount-cell ${amountClass}">
+                        ${(invoice.totalAmount || 0).toLocaleString('ar-SA', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        })}
+                    </td>
+                    <td>
+                        <span class="status-indicator status-${invoice.status || 'draft'}"></span>
+                        ${this.getInvoiceStatusText(invoice.status)}
+                    </td>
+                    <td>${this.getPaymentMethodText(invoice.paymentMethod)}</td>
+                    <td>
+                        ${invoice.dueDate ? `
+                            <span class="${isOverdue ? 'text-danger' : this.isInvoiceDueSoon(invoice) ? 'text-warning' : 'text-success'}">
+                                ${this.formatDate(invoice.dueDate)}
+                            </span>
+                        ` : '--'}
+                    </td>
+                    <td>
+                        <div class="patient-actions">
+                            <button class="action-btn-sm btn-view" onclick="dashboard.viewInvoiceDetails(${invoice.id})" title="عرض التفاصيل">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn-sm btn-print" onclick="dashboard.printInvoice(${invoice.id})" title="طباعة">
+                                <i class="fas fa-print"></i>
+                            </button>
+                            ${invoice.status === 'pending' ? `
+                                <button class="action-btn-sm btn-pay" onclick="dashboard.markInvoiceAsPaid(${invoice.id})" title="تسديد">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            ` : ''}
+                            <button class="action-btn-sm btn-edit" onclick="dashboard.editInvoice(${invoice.id})" title="تعديل">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn-sm btn-delete" onclick="dashboard.deleteInvoice(${invoice.id})" title="حذف">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+        
+        // تحديث الترقيم
+        this.updateInvoicesPagination(invoices.length);
+    }
+
+    // دوال مساعدة للفواتير
+    getInvoiceStatusText(status) {
+        const statusMap = {
+            'draft': 'مسودة',
+            'pending': 'معلقة',
+            'paid': 'مدفوعة',
+            'overdue': 'متأخرة',
+            'cancelled': 'ملغاة',
+            'refunded': 'مرتجعة'
+        };
+        return statusMap[status] || status || 'مسودة';
+    }
+
+    getInvoiceStatusClass(invoice) {
+        if (invoice.status === 'pending' && this.isInvoiceOverdue(invoice)) {
+            return 'overdue';
+        }
+        return invoice.status || 'draft';
+    }
+
+    getInvoiceAmountClass(invoice) {
+        if (invoice.status === 'paid') return 'amount-paid';
+        if (invoice.status === 'pending' && this.isInvoiceOverdue(invoice)) return 'amount-overdue';
+        if (invoice.status === 'pending') return 'amount-pending';
+        return '';
+    }
+
+    isInvoiceOverdue(invoice) {
+        if (invoice.status !== 'pending') return false;
+        if (!invoice.dueDate) return false;
+        const dueDate = new Date(invoice.dueDate);
+        const now = new Date();
+        return dueDate < now;
+    }
+
+    isInvoiceDueSoon(invoice) {
+        if (invoice.status !== 'pending') return false;
+        if (!invoice.dueDate) return false;
+        const dueDate = new Date(invoice.dueDate);
+        const now = new Date();
+        const daysUntilDue = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+        return daysUntilDue <= 7 && daysUntilDue > 0;
+    }
+
+    // عرض تفاصيل الفاتورة
+    async viewInvoiceDetails(invoiceId) {
+        try {
+            const invoice = await storeDB.get('invoices', invoiceId);
+            if (!invoice) {
+                this.showError('الفاتورة غير موجودة');
+                return;
+            }
+            
+            const patient = await storeDB.get('patients', invoice.patientId);
+            const appointment = invoice.appointmentId ? await storeDB.get('appointments', invoice.appointmentId) : null;
+            
+            // الحصول على عناصر الفاتورة
+            const invoiceItems = await storeDB.getAllByIndex('invoiceItems', 'invoiceId', invoiceId);
+            const services = await Promise.all(
+                invoiceItems.map(async item => {
+                    const service = await storeDB.get('medicalServices', item.serviceId);
+                    return {
+                        ...item,
+                        service: service || { name: 'خدمة غير معروفة', price: 0 }
+                    };
+                })
+            );
+            
+            this.showInvoiceDetailsModal(invoice, patient, appointment, services);
+            
+        } catch (error) {
+            console.error('خطأ في عرض تفاصيل الفاتورة:', error);
+            this.showError('فشل في تحميل بيانات الفاتورة');
+        }
+    }
+
+    // ... باقي الدوال سيتم إكمالها في الجزء التالي ...
+}
+
+// جعل الكائن متاحاً globally للاستخدام في event handlers
+window.dashboard = new Dashboard();
+
+
+class Dashboard {
+    // ... الكود الحالي ...
+
+    // تحميل بيانات التقارير
+    async loadReportsData() {
+        try {
+            console.log('جاري تحميل بيانات التقارير...');
+            
+            // تحميل البيانات اللازمة للتقارير
+            const [
+                patients,
+                appointments,
+                invoices,
+                prescriptions,
+                medicalRecords,
+                users
+            ] = await Promise.all([
+                storeDB.getAll('patients'),
+                storeDB.getAll('appointments'),
+                storeDB.getAll('invoices'),
+                storeDB.getAll('prescriptions'),
+                storeDB.getAll('medicalRecords'),
+                storeDB.getAll('users')
+            ]);
+            
+            // تحديث النظرة العامة
+            this.updateReportsOverview(patients, appointments, invoices, prescriptions);
+            
+            // إنشاء المخططات
+            this.createRevenueChart(invoices);
+            this.createPatientsChart(patients);
+            this.createServicesChart(medicalRecords, appointments);
+            this.createPaymentsChart(invoices);
+            this.createAppointmentsChart(appointments);
+            
+            // تحديث التقارير المجدولة
+            this.updateScheduledReports();
+            
+            console.log('تم تحميل بيانات التقارير بنجاح');
+            
+        } catch (error) {
+            console.error('خطأ في تحميل بيانات التقارير:', error);
+            this.showError('فشل في تحميل بيانات التقارير');
+        }
+    }
+
+    // تحديث النظرة العامة
+    updateReportsOverview(patients, appointments, invoices, prescriptions) {
+        const period = document.getElementById('overviewPeriod').value;
+        const now = new Date();
+        let startDate, endDate;
+        
+        // تحديد الفترة الزمنية
+        switch (period) {
+            case 'today':
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                break;
+            case 'week':
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+                endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() + 7);
+                break;
+            case 'month':
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                break;
+            case 'quarter':
+                const quarter = Math.floor(now.getMonth() / 3);
+                startDate = new Date(now.getFullYear(), quarter * 3, 1);
+                endDate = new Date(now.getFullYear(), (quarter + 1) * 3, 0);
+                break;
+            case 'year':
+                startDate = new Date(now.getFullYear(), 0, 1);
+                endDate = new Date(now.getFullYear(), 11, 31);
+                break;
+        }
+        
+        // تصفية البيانات حسب الفترة
+        const periodPatients = patients.filter(p => {
+            const patientDate = new Date(p.createdAt);
+            return patientDate >= startDate && patientDate <= endDate;
+        });
+        
+        const periodAppointments = appointments.filter(a => {
+            const appointmentDate = new Date(a.date);
+            return appointmentDate >= startDate && appointmentDate <= endDate;
+        });
+        
+        const periodInvoices = invoices.filter(i => {
+            const invoiceDate = new Date(i.invoiceDate || i.createdAt);
+            return invoiceDate >= startDate && invoiceDate <= endDate && i.status === 'paid';
+        });
+        
+        const periodPrescriptions = prescriptions.filter(p => {
+            const prescriptionDate = new Date(p.date);
+            return prescriptionDate >= startDate && prescriptionDate <= endDate;
+        });
+        
+        // حساب الإحصائيات
+        const patientsCount = periodPatients.length;
+        const appointmentsCount = periodAppointments.length;
+        const revenue = periodInvoices.reduce((sum, inv) => sum + (inv.totalAmount || 0), 0);
+        const prescriptionsCount = periodPrescriptions.length;
+        
+        // تحديث الواجهة
+        document.getElementById('overviewPatients').textContent = patientsCount.toLocaleString();
+        document.getElementById('overviewAppointments').textContent = appointmentsCount.toLocaleString();
+        document.getElementById('overviewRevenue').textContent = revenue.toLocaleString('ar-SA', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        document.getElementById('overviewPrescriptions').textContent = prescriptionsCount.toLocaleString();
+        
+        // حساب الاتجاهات (هنا يمكن إضافة منطق أكثر تعقيداً)
+        this.calculateTrends(patientsCount, appointmentsCount, revenue, prescriptionsCount);
+    }
+
+    // حساب الاتجاهات
+    calculateTrends(patients, appointments, revenue, prescriptions) {
+        // هذه قيم افتراضية - في التطبيق الحقيقي سيتم مقارنة بالفترات السابقة
+        const patientsTrend = Math.random() > 0.5 ? 'positive' : 'negative';
+        const appointmentsTrend = Math.random() > 0.3 ? 'positive' : 'negative';
+        const revenueTrend = Math.random() > 0.2 ? 'positive' : 'negative';
+        const prescriptionsTrend = Math.random() > 0.6 ? 'positive' : 'negative';
+        
+        const patientsPercentage = (Math.random() * 20).toFixed(1);
+        const appointmentsPercentage = (Math.random() * 15).toFixed(1);
+        const revenuePercentage = (Math.random() * 25).toFixed(1);
+        const prescriptionsPercentage = (Math.random() * 10).toFixed(1);
+        
+        this.updateTrendElement('patientsTrend', patientsTrend, patientsPercentage);
+        this.updateTrendElement('appointmentsTrend', appointmentsTrend, appointmentsPercentage);
+        this.updateTrendElement('revenueTrend', revenueTrend, revenuePercentage);
+        this.updateTrendElement('prescriptionsTrend', prescriptionsTrend, prescriptionsPercentage);
+    }
+
+    // تحديث عنصر الاتجاه
+    updateTrendElement(elementId, trend, percentage) {
+        const element = document.getElementById(elementId);
+        element.className = `stat-trend ${trend}`;
+        element.innerHTML = `
+            <i class="fas fa-arrow-${trend === 'positive' ? 'up' : 'down'}"></i>
+            <span>${percentage}%</span>
+        `;
+    }
+
+    // إنشاء مخطط الإيرادات
+    createRevenueChart(invoices) {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const paidInvoices = invoices.filter(inv => inv.status === 'paid');
+        
+        // تجميع الإيرادات حسب الشهر
+        const monthlyRevenue = {};
+        paidInvoices.forEach(invoice => {
+            const date = new Date(invoice.invoiceDate || invoice.createdAt);
+            const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
+            const monthName = this.getMonthName(date.getMonth());
+            
+            if (!monthlyRevenue[monthName]) {
+                monthlyRevenue[monthName] = 0;
+            }
+            monthlyRevenue[monthName] += invoice.totalAmount || 0;
+        });
+        
+        const labels = Object.keys(monthlyRevenue).slice(-6); // آخر 6 أشهر
+        const data = labels.map(month => monthlyRevenue[month]);
+        
+        this.revenueChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'الإيرادات',
+                    data: data,
+                    borderColor: '#2c5aa0',
+                    backgroundColor: 'rgba(44, 90, 160, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `الإيرادات: ${context.parsed.y.toLocaleString('ar-SA')}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('ar-SA');
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // إنشاء مخطط توزيع المرضى
+    createPatientsChart(patients) {
+        const ctx = document.getElementById('patientsChart').getContext('2d');
+        
+        // تجميع المرضى حسب فئة العمر
+        const ageGroups = {
+            'أطفال (0-12)': 0,
+            'مراهقين (13-18)': 0,
+            'شباب (19-35)': 0,
+            'كبار (36-60)': 0,
+            'مسنين (60+)': 0
+        };
+        
+        patients.forEach(patient => {
+            if (patient.birthDate) {
+                const age = this.calculateAge(patient.birthDate);
+                if (age <= 12) ageGroups['أطفال (0-12)']++;
+                else if (age <= 18) ageGroups['مراهقين (13-18)']++;
+                else if (age <= 35) ageGroups['شباب (19-35)']++;
+                else if (age <= 60) ageGroups['كبار (36-60)']++;
+                else ageGroups['مسنين (60+)']++;
+            }
+        });
+        
+        this.patientsChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(ageGroups),
+                datasets: [{
+                    data: Object.values(ageGroups),
+                    backgroundColor: [
+                        '#2c5aa0',
+                        '#4caf50',
+                        '#ff9800',
+                        '#9c27b0',
+                        '#f44336'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    // إنشاء مخطط الخدمات
+    createServicesChart(medicalRecords, appointments) {
+        const ctx = document.getElementById('servicesChart').getContext('2d');
+        
+        // تجميع الخدمات الأكثر شيوعاً
+        const serviceCounts = {};
+        medicalRecords.forEach(record => {
+            const type = record.type || 'consultation';
+            const typeText = this.getRecordTypeText(type);
+            serviceCounts[typeText] = (serviceCounts[typeText] || 0) + 1;
+        });
+        
+        // ترتيب الخدمات من الأكثر إلى الأقل
+        const sortedServices = Object.entries(serviceCounts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5);
+        
+        this.servicesChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: sortedServices.map(s => s[0]),
+                datasets: [{
+                    label: 'عدد المرات',
+                    data: sortedServices.map(s => s[1]),
+                    backgroundColor: '#2c5aa0'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // إنشاء مخطط طرق الدفع
+    createPaymentsChart(invoices) {
+        const ctx = document.getElementById('paymentsChart').getContext('2d');
+        const paidInvoices = invoices.filter(inv => inv.status === 'paid');
+        
+        const paymentMethods = {};
+        paidInvoices.forEach(invoice => {
+            const method = invoice.paymentMethod || 'cash';
+            const methodText = this.getPaymentMethodText(method);
+            paymentMethods[methodText] = (paymentMethods[methodText] || 0) + 1;
+        });
+        
+        this.paymentsChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(paymentMethods),
+                datasets: [{
+                    data: Object.values(paymentMethods),
+                    backgroundColor: [
+                        '#2c5aa0',
+                        '#4caf50',
+                        '#ff9800',
+                        '#9c27b0',
+                        '#f44336'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    // إنشاء مخطط حالات المواعيد
+    createAppointmentsChart(appointments) {
+        const ctx = document.getElementById('appointmentsChart').getContext('2d');
+        
+        const statusCounts = {
+            'مكتمل': 0,
+            'مجدول': 0,
+            'ملغى': 0,
+            'لم يحضر': 0
+        };
+        
+        appointments.forEach(appointment => {
+            const status = appointment.status || 'scheduled';
+            const statusText = this.getAppointmentStatusText(status);
+            statusCounts[statusText] = (statusCounts[statusText] || 0) + 1;
+        });
+        
+        this.appointmentsChart = new Chart(ctx, {
+            type: 'polarArea',
+            data: {
+                labels: Object.keys(statusCounts),
+                datasets: [{
+                    data: Object.values(statusCounts),
+                    backgroundColor: [
+                        '#4caf50',
+                        '#2c5aa0',
+                        '#f44336',
+                        '#ff9800'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    // دوال مساعدة
+    getMonthName(monthIndex) {
+        const months = [
+            'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+            'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+        ];
+        return months[monthIndex];
+    }
+
+    getRecordTypeText(type) {
+        const typeMap = {
+            'consultation': 'كشف',
+            'followup': 'متابعة',
+            'emergency': 'طوارئ',
+            'surgery': 'عملية',
+            'lab': 'مختبر',
+            'radiology': 'أشعة'
+        };
+        return typeMap[type] || type;
+    }
+
+    getAppointmentStatusText(status) {
+        const statusMap = {
+            'completed': 'مكتمل',
+            'scheduled': 'مجدول',
+            'cancelled': 'ملغى',
+            'no-show': 'لم يحضر'
+        };
+        return statusMap[status] || status;
+    }
+
+    // إنشاء تقرير
+    async generateReport(reportType) {
+        try {
+            this.showLoading('جاري إنشاء التقرير...');
+            
+            // محاكاة وقت معالجة التقرير
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            const reportData = await this.prepareReportData(reportType);
+            this.showReportPreview(reportType, reportData);
+            
+        } catch (error) {
+            console.error('خطأ في إنشاء التقرير:', error);
+            this.showError('فشل في إنشاء التقرير');
+        } finally {
+            this.hideLoading();
+        }
+    }
+
+    // تحضير بيانات التقرير
+    async prepareReportData(reportType) {
+        // في التطبيق الحقيقي، سيتم جلب البيانات من قاعدة البيانات
+        const mockData = {
+            'revenue-summary': {
+                title: 'تقرير الإيرادات الشامل',
+                period: 'يناير 2024',
+                sections: [
+                    {
+                        title: 'ملخص الإيرادات',
+                        type: 'summary',
+                        data: {
+                            'إجمالي الإيرادات': 125000,
+                            'متوسط الفاتورة': 250,
+                            'أعلى فاتورة': 5000,
+                            'عدد الفواتير': 500
+                        }
+                    },
+                    {
+                        title: 'الاتجاه الشهري',
+                        type: 'chart',
+                        data: [12000, 15000, 18000, 22000, 25000, 28000, 30000]
+                    }
+                ]
+            },
+            'patient-statistics': {
+                title: 'تقرير إحصائيات المرضى',
+                period: 'الربع الأول 2024',
+                sections: [
+                    {
+                        title: 'التوزيع العمري',
+                        type: 'chart',
+                        data: {
+                            'أطفال (0-12)': 45,
+                            'مراهقين (13-18)': 30,
+                            'شباب (19-35)': 120,
+                            'كبار (36-60)': 85,
+                            'مسنين (60+)': 40
+                        }
+                    }
+                ]
+            }
+        };
+        
+        return mockData[reportType] || mockData['revenue-summary'];
+    }
+
+    // معاينة التقرير
+    showReportPreview(reportType, reportData) {
+        const modal = document.getElementById('reportPreviewModal');
+        const title = document.getElementById('previewReportTitle');
+        const content = document.getElementById('previewContent');
+        
+        title.textContent = reportData.title;
+        content.innerHTML = this.generateReportHTML(reportData);
+        
+        modal.style.display = 'flex';
+        
+        // إضافة مستمعي الأحداث للأزرار
+        document.getElementById('closePreview').onclick = () => {
+            modal.style.display = 'none';
+        };
+        
+        document.getElementById('printPreview').onclick = () => {
+            this.printReport(reportData);
+        };
+        
+        document.getElementById('exportPreview').onclick = () => {
+            this.exportReport(reportData);
+        };
+    }
+
+    // توليد HTML للتقرير
+    generateReportHTML(reportData) {
+        let html = `
+            <div class="report-template">
+                <div class="report-header">
+                    <h1 class="report-title">${reportData.title}</h1>
+                    <div class="report-period">الفترة: ${reportData.period}</div>
+                    <div class="report-date">تاريخ الإنشاء: ${new Date().toLocaleDateString('ar-SA')}</div>
+                </div>
+        `;
+        
+        reportData.sections.forEach(section => {
+            html += `
+                <div class="report-section">
+                    <h3 class="section-title">${section.title}</h3>
+            `;
+            
+            if (section.type === 'summary') {
+                html += this.generateSummaryHTML(section.data);
+            } else if (section.type === 'chart') {
+                html += this.generateChartPlaceholder(section.data);
+            } else if (section.type === 'table') {
+                html += this.generateTableHTML(section.data);
+            }
+            
+            html += `</div>`;
+        });
+        
+        html += `</div>`;
+        return html;
+    }
+
+    // توليد HTML للملخص
+    generateSummaryHTML(data) {
+        let html = '<div class="report-summary">';
+        Object.entries(data).forEach(([key, value]) => {
+            html += `
+                <div class="summary-item">
+                    <span>${key}</span>
+                    <span>${typeof value === 'number' ? value.toLocaleString('ar-SA') : value}</span>
+                </div>
+            `;
+        });
+        html += '</div>';
+        return html;
+    }
+
+    // توليد عنصر نائب للمخطط
+    generateChartPlaceholder(data) {
+        return `
+            <div class="report-chart-preview">
+                <i class="fas fa-chart-bar" style="font-size: 48px; margin-bottom: 15px;"></i>
+                <p>سيظهر هنا مخطط تفاعلي في التقرير النهائي</p>
+                <p style="font-size: 12px; margin-top: 10px;">بيانات المخطط جاهزة للعرض</p>
+            </div>
+        `;
+    }
+
+    // توليد HTML للجدول
+    generateTableHTML(data) {
+        let html = '<table class="report-table">';
+        // رأس الجدول
+        html += '<thead><tr>';
+        data.headers.forEach(header => {
+            html += `<th>${header}</th>`;
+        });
+        html += '</tr></thead>';
+        
+        // جسم الجدول
+        html += '<tbody>';
+        data.rows.forEach(row => {
+            html += '<tr>';
+            row.forEach(cell => {
+                html += `<td>${cell}</td>`;
+            });
+            html += '</tr>';
+        });
+        html += '</tbody></table>';
+        return html;
+    }
+
+    // طباعة التقرير
+    printReport(reportData) {
+        const printWindow = window.open('', '_blank');
+        const printHTML = `
+            <!DOCTYPE html>
+            <html dir="rtl">
+            <head>
+                <title>${reportData.title}</title>
+                <style>
+                    body { 
+                        font-family: 'Tajawal', sans-serif; 
+                        margin: 20px; 
+                        line-height: 1.6;
+                    }
+                    .report-header { 
+                        text-align: center; 
+                        margin-bottom: 30px;
+                        border-bottom: 2px solid #2c5aa0;
+                        padding-bottom: 20px;
+                    }
+                    .report-title { 
+                        color: #2c5aa0; 
+                        margin-bottom: 10px;
+                    }
+                    .report-section { 
+                        margin-bottom: 25px; 
+                    }
+                    .section-title { 
+                        color: #2c5aa0; 
+                        border-bottom: 1px solid #ddd;
+                        padding-bottom: 8px;
+                    }
+                    .report-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 15px 0;
+                    }
+                    .report-table th,
+                    .report-table td {
+                        border: 1px solid #ddd;
+                        padding: 10px;
+                        text-align: right;
+                    }
+                    .report-table th {
+                        background: #f5f5f5;
+                    }
+                    @media print {
+                        body { margin: 0; }
+                    }
+                </style>
+            </head>
+            <body>
+                ${this.generateReportHTML(reportData)}
+            </body>
+            </html>
+        `;
+        
+        printWindow.document.write(printHTML);
+        printWindow.document.close();
+        printWindow.print();
+    }
+
+    // تصدير التقرير
+    exportReport(reportData) {
+        // في التطبيق الحقيقي، سيتم تصدير إلى PDF أو Excel
+        const blob = new Blob([JSON.stringify(reportData, null, 2)], {
+            type: 'application/json'
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${reportData.title.replace(/\s+/g, '_')}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    // تحديث التقارير المجدولة
+    updateScheduledReports() {
+        const tableBody = document.getElementById('schedulesTableBody');
+        
+        const scheduledReports = [
+            {
+                name: 'تقرير الإيرادات الأسبوعي',
+                frequency: 'أسبوعي',
+                lastRun: '2024-01-15',
+                status: 'نشط',
+                recipients: ['مدير@العيادة.com']
+            },
+            {
+                name: 'تقرير المرضى الشهري',
+                frequency: 'شهري',
+                lastRun: '2024-01-01',
+                status: 'نشط',
+                recipients: ['إدارة@العيادة.com', 'موظفون@العيادة.com']
+            }
+        ];
+        
+        tableBody.innerHTML = scheduledReports.map(report => `
+            <tr>
+                <td>${report.name}</td>
+                <td>${report.frequency}</td>
+                <td>${this.formatDate(report.lastRun)}</td>
+                <td>
+                    <span class="status-indicator status-active"></span>
+                    ${report.status}
+                </td>
+                <td>${report.recipients.join(', ')}</td>
+                <td>
+                    <div class="patient-actions">
+                        <button class="action-btn-sm btn-edit" title="تعديل">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn-sm btn-pause" title="إيقاف">
+                            <i class="fas fa-pause"></i>
+                        </button>
+                        <button class="action-btn-sm btn-delete" title="حذف">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // دوال مساعدة للتحميل
+    showLoading(message) {
+        // تنفيذ عرض مؤشر تحميل
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'report-loading';
+        loadingDiv.innerHTML = `
+            <div class="loading-spinner"></div>
+            <p>${message}</p>
+        `;
+        document.body.appendChild(loadingDiv);
+    }
+
+    hideLoading() {
+        const loadingDiv = document.querySelector('.report-loading');
+        if (loadingDiv) {
+            loadingDiv.remove();
+        }
+    }
+
+    // ... باقي الدوال الحالية ...
+}
+
+// جعل الكائن متاحاً globally للاستخدام في event handlers
+window.dashboard = new Dashboard();
+
